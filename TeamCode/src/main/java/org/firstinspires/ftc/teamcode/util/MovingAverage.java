@@ -22,7 +22,7 @@ public class MovingAverage {
     }
 
     public double getMean() {
-        return sum / period;
+        return sum / Math.min(Dataset.size(), period);
     }
 
     public boolean isFull() {
