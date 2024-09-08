@@ -42,7 +42,9 @@ public class Arm implements Subsystem {
             this.angle = degrees;
         }
     }
-
+    void resetArmPosition() {
+        motors.get(0).stopAndResetEncoder();
+    }
     private final double liftInchesPerTicks = 31.875D/1581D;
     private final double axleHeightIn = 11; // inches
     private final double zeroExtension = 18; // inches
