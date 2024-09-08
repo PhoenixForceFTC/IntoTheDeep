@@ -31,7 +31,7 @@ public class MultipleMotorLift implements Subsystem {
             this.height = ticks;
         }
     } 
-    
+
     private final ArrayList<MotorEx> motors;
     private final MotorEx left, right;
     private final PIDFController feedbackControllerLeft, feedbackControllerRight;
@@ -41,6 +41,7 @@ public class MultipleMotorLift implements Subsystem {
     public static int customHeight = 0;
 
     private final Telemetry telemetry;
+
 
     public static double kP = 0.02, kI = 0.007, kD = 0.0005, kF = 0.002;
     public MultipleMotorLift(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
@@ -59,7 +60,6 @@ public class MultipleMotorLift implements Subsystem {
         this.manual = manualPowerController;
         this.telemetry = telemetry;
     }
-
 
     @Override
     public void update() {

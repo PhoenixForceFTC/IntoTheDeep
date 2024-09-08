@@ -5,10 +5,11 @@ import androidx.annotation.Nullable;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.ArmFeedforward;
-import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.util.MathUtils;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -26,19 +27,24 @@ import java.util.function.DoubleSupplier;
 @Config
 public class Arm implements Subsystem {
     public enum Position {
-        HOME(180),
-        PENETRATION(-120), //changed from -15 due to altered starting pos
-        GRABBING(-30),
+        HOME(180 + 27D),
+        PENETRATION(-30), //changed from -15 due to altered starting pos
+        GRABBING(-44), // changed from -30
         DUMPING(60),
         MANUAL(-1),
+        GRABBING_TELEOP(-1),
         CUSTOM(-1);
 
-        public final Rotation2d angle;
+        public final double angle;
 
         Position(double degrees) {
-            this.angle = Rotation2d.fromDegrees(degrees);
+            this.angle = degrees;
         }
     }
+
+    private final double liftInchesPerTicks = 31.875D/1581D;
+    private final double axleHeightIn = 11; // inches
+    private final double zeroExtension = 18; // inches
 
     private final ArrayList<MotorEx> motors = new ArrayList<>(1); // only one for now, just want to make scalable
     private final DoubleSupplier manual;
@@ -49,12 +55,16 @@ public class Arm implements Subsystem {
     public static Position target = Position.HOME;
     public static double customAngle = 0D;
 
-    public static double kP = 0.03, kI = 0, kD = 0.0005, kG = 0.1;
+    public static double kP = 0.03, kI = 0, kD = 0.001, kG = 0.145;
 
     private final Telemetry telemetry;
+    private final DcMotorEx extension;
+
+    public static int extensionPosition = 0;
+    public static final int MAX_EXTENSION = 1300;
 
     public Arm(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
-        MotorEx motor1 = new MotorEx(hardwareMap, "rightArm", Motor.GoBILDA.RPM_43);
+        MotorEx motor1 = new MotorEx(hardwareMap, "rightArm", Motor.GoBILDA.RPM_30);
         motor1.setInverted(true);
         motor1.stopAndResetEncoder();
 
@@ -65,6 +75,13 @@ public class Arm implements Subsystem {
 
         this.manual = manualPowerController;
         this.telemetry = telemetry;
+
+        this.extension = hardwareMap.get(DcMotorEx.class, "liftExtension");
+        extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extension.setTargetPosition(0);
+        extension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extension.setPower(1);
+        extension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
@@ -72,7 +89,7 @@ public class Arm implements Subsystem {
         feedbackController.setPID(kP, kI, kD);
         armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
 
-        double targetAngle = target.angle.getDegrees();
+        double targetAngle = target.angle;
 
         switch (target) { // OVERRIDES
             case MANUAL:
@@ -80,25 +97,30 @@ public class Arm implements Subsystem {
                 return;
             case CUSTOM:
                 targetAngle = customAngle;
+                break;
+            case GRABBING_TELEOP:
+                targetAngle = Math.toDegrees(Math.acos(axleHeightIn/(extension.getCurrentPosition() * liftInchesPerTicks + zeroExtension))) - 93;
         }
 
         double currentDegrees = getCurrentPosition();
         double currentRadians = Math.toRadians(currentDegrees);
-        if (currentDegrees < -170) currentDegrees = 179;
         final double output =
-                currentDegrees < 170 || targetAngle < 170 ?
+                currentDegrees < Position.HOME.angle - 7D || targetAngle < Position.HOME.angle - 7D ?
                         feedbackController.calculate(currentDegrees, targetAngle) +
                                 armFeedforwardController.calculate(
                                         currentRadians, 0
                                 )
                 : 0;
+        extension.setTargetPosition(Arm.extensionPosition);
         telemetry.addData("target arm angle", targetAngle);
         telemetry.addData("current arm angle", currentDegrees);
+        telemetry.addData("extensionTicks", extension.getCurrentPosition());
+        telemetry.addData("extensionTarget", extension.getTargetPosition());
         setPower(MathUtils.clamp(output, -1, 1));
     }
 
     public double getCurrentPosition() {
-        return motors.get(0).getCurrentPosition() / motors.get(0).getCPR() * 360 + 180;
+        return motors.get(0).getCurrentPosition() / motors.get(0).getCPR() * 360 + Position.HOME.angle;
     }
 
     public void setPower(double power) {
@@ -107,5 +129,9 @@ public class Arm implements Subsystem {
 
     public void setTargetPosition(Position position) {
         Arm.target = position;
+    }
+
+    public void setExtensionPosition(int position) {
+        Arm.extensionPosition = position;
     }
 }
