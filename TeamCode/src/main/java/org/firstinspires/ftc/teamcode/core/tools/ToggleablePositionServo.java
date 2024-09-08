@@ -5,12 +5,13 @@ import androidx.annotation.NonNull;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 public class ToggleablePositionServo implements Subsystem {
-    private final ServoEx servo;
+    private final Servo servo;
     private final double position0, position1;
     private boolean lastToggle, toggle;
 
@@ -19,7 +20,7 @@ public class ToggleablePositionServo implements Subsystem {
         this.position0 = pos0;
         this.position1 = pos1;
         this.toggle = startingToggle;
-        this.servo = hardwareMap.get(ServoEx.class, servoName);
+        this.servo = hardwareMap.get(Servo.class, servoName);
         lastToggle = !toggle; // to ensure update in update method
         update();
     }

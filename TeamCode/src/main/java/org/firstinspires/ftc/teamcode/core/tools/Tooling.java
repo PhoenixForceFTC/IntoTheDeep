@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.core.tools;
 
-import androidx.annotation.Nullable;
-
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 public class Tooling implements Subsystem {
@@ -18,10 +16,10 @@ public class Tooling implements Subsystem {
 
     final ToggleButtonReader manualArmToggle, manualLiftToggle;
 
-    public Tooling(HardwareMap hardwareMap, GamepadEx toolGamepad) {
-        this.arm = new Arm(hardwareMap, toolGamepad::getRightY);
-        this.lift = new MultipleMotorLift(hardwareMap, toolGamepad::getLeftY);
-        this.claw = new ToggleablePositionServo(hardwareMap, 0, 1, "claw", true);
+    public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
+        this.arm = new Arm(hardwareMap, telemetry, toolGamepad::getRightY);
+        this.lift = new MultipleMotorLift(hardwareMap, telemetry, toolGamepad::getLeftY);
+        this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", true);
         this.gamepad = toolGamepad;
 
         manualArmToggle = new ToggleButtonReader(toolGamepad, GamepadKeys.Button.RIGHT_STICK_BUTTON);
