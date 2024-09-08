@@ -27,7 +27,7 @@ import java.util.function.DoubleSupplier;
 public class Arm implements Subsystem {
     public enum Position {
         HOME(180),
-        PENETRATION(-15),
+        PENETRATION(-120), //changed from -15 due to altered starting pos
         GRABBING(-30),
         DUMPING(60),
         MANUAL(-1),
