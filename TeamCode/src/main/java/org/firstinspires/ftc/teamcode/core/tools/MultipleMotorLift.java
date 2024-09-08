@@ -30,7 +30,8 @@ public class MultipleMotorLift implements Subsystem {
         Position(int ticks) {
             this.height = ticks;
         }
-    }
+    } 
+    
     private final ArrayList<MotorEx> motors;
     private final MotorEx left, right;
     private final PIDFController feedbackControllerLeft, feedbackControllerRight;
