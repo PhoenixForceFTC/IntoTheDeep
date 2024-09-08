@@ -26,6 +26,7 @@ import java.util.function.DoubleSupplier;
 
 @Config
 public class Arm implements Subsystem {
+    public static double lastAutoAngle = 0;
     public enum Position {
         HOME(180 + 27D),
         PENETRATION(-14), //changed from -15 due to altered starting pos
@@ -69,7 +70,9 @@ public class Arm implements Subsystem {
 
         MotorEx motor1 = new MotorEx(hardwareMap, "rightArm", Motor.GoBILDA.RPM_30);
         motor1.setInverted(true);
-        motor1.stopAndResetEncoder();
+        if (Math.abs(lastAutoAngle) < 1e-6) {
+            motor1.stopAndResetEncoder();
+        }
 
         motors.add(motor1);
 
