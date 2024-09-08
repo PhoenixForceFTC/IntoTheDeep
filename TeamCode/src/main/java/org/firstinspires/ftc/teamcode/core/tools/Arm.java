@@ -17,6 +17,12 @@ import org.firstinspires.ftc.teamcode.core.Subsystem;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
+// ADDITIONAL MOTOR
+// VARIES WITH SINE TIMES GRAVITY CONSTANT FOR ITS PID
+// TRIGGERS MOVE EACH DIRECTION
+
+
+
 @Config
 public class Arm implements Subsystem {
     public enum Position {
