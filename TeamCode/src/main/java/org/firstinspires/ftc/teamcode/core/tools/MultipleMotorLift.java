@@ -40,11 +40,14 @@ public class MultipleMotorLift implements Subsystem {
     public static Position target = Position.BOTTOM_POSITION_CONTROL;
     public static int customHeight = 0;
 
+    public static double liftTickSpeed = 30;
     private final Telemetry telemetry;
 
-
+    private int lastTargetTicks = 0;
     public static double kP = 0.02, kI = 0.007, kD = 0.0005, kF = 0.002;
     public MultipleMotorLift(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
+        MultipleMotorLift.target = Position.BOTTOM_POSITION_CONTROL;
+
         left = new MotorEx(hardwareMap, "leftLift", Motor.GoBILDA.RPM_435);
         left.stopAndResetEncoder();
 
@@ -67,14 +70,25 @@ public class MultipleMotorLift implements Subsystem {
         feedbackControllerRight.setPIDF(kP, kI, kD, kF);
 
         int targetTicks = target.height;
+
+        final int currentLeft = getCurrentLeftPosition(), currentRight = getCurrentRightPosition();
+
         switch (target) { // OVERRIDES
             case MANUAL:
-                setPower(MathUtils.clamp(manual.getAsDouble() + (kF * getCurrentLeftPosition()), -1, 1));
-                return;
+                final double gamepad = manual.getAsDouble();
+                targetTicks = Math.max(
+                        Position.BOTTOM_POSITION_CONTROL.height,
+                        Math.min(
+                                Position.TOP_POSITION_CONTROL.height,
+                                lastTargetTicks + ((int) Math.round(gamepad * liftTickSpeed))
+                        )
+                );
+                lastTargetTicks = targetTicks;
+                break;
             case CUSTOM:
                 targetTicks = customHeight;
+                break;
         }
-        final double currentLeft = getCurrentLeftPosition(), currentRight = getCurrentRightPosition();
 
         final double feedbackOutputLeft = currentLeft > 50 || targetTicks > 10 ? feedbackControllerLeft.calculate(currentLeft, targetTicks) : 0;
         final double feedbackOutputRight = currentRight > 50 || targetTicks > 10 ? feedbackControllerRight.calculate(currentRight, targetTicks + 30) : 0;
@@ -87,11 +101,11 @@ public class MultipleMotorLift implements Subsystem {
         right.set(MathUtils.clamp(feedbackOutputRight, -1, 1));
     }
 
-    public double getCurrentLeftPosition() {
+    public int getCurrentLeftPosition() {
         return left.getCurrentPosition();
     }
 
-    public double getCurrentRightPosition() {
+    public int getCurrentRightPosition() {
         return right.getCurrentPosition();
     }
 
@@ -100,6 +114,7 @@ public class MultipleMotorLift implements Subsystem {
     }
 
     public void setTargetPosition(Position position) {
+        lastTargetTicks = MultipleMotorLift.target.height;
         MultipleMotorLift.target = position;
     }
 }

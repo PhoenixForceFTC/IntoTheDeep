@@ -28,9 +28,9 @@ import java.util.function.DoubleSupplier;
 public class Arm implements Subsystem {
     public enum Position {
         HOME(180 + 27D),
-        PENETRATION(-30), //changed from -15 due to altered starting pos
+        PENETRATION(-14), //changed from -15 due to altered starting pos
         GRABBING(-44), // changed from -30
-        DUMPING(60),
+        DUMPING(42),
         MANUAL(-1),
         GRABBING_TELEOP(-1),
         CUSTOM(-1);
@@ -64,6 +64,9 @@ public class Arm implements Subsystem {
     public static final int MAX_EXTENSION = 1300;
 
     public Arm(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
+        Arm.extensionPosition = 0;
+        Arm.target = Position.HOME;
+
         MotorEx motor1 = new MotorEx(hardwareMap, "rightArm", Motor.GoBILDA.RPM_30);
         motor1.setInverted(true);
         motor1.stopAndResetEncoder();
@@ -90,6 +93,7 @@ public class Arm implements Subsystem {
         armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
 
         double targetAngle = target.angle;
+        extension.setTargetPosition(Arm.extensionPosition);
 
         switch (target) { // OVERRIDES
             case MANUAL:
@@ -99,7 +103,7 @@ public class Arm implements Subsystem {
                 targetAngle = customAngle;
                 break;
             case GRABBING_TELEOP:
-                targetAngle = Math.toDegrees(Math.acos(axleHeightIn/(extension.getCurrentPosition() * liftInchesPerTicks + zeroExtension))) - 93;
+                targetAngle = Math.toDegrees(Math.acos(axleHeightIn/(extension.getCurrentPosition() * liftInchesPerTicks + zeroExtension))) - 95;
         }
 
         double currentDegrees = getCurrentPosition();
@@ -111,7 +115,6 @@ public class Arm implements Subsystem {
                                         currentRadians, 0
                                 )
                 : 0;
-        extension.setTargetPosition(Arm.extensionPosition);
         telemetry.addData("target arm angle", targetAngle);
         telemetry.addData("current arm angle", currentDegrees);
         telemetry.addData("extensionTicks", extension.getCurrentPosition());
