@@ -20,20 +20,20 @@ public class Red_Left extends AutoOpMode {
     public static Position START = new Position(-36, -63, 180);
     public static Position INT = new Position(-50, -60, 180);
     public static Position SCORE = new Position(-50, -60, 225);
+    public static Position INT2 = new Position(-50, -12, 225);
     public static Position ASCENT = new Position(-28, -12, 225);
 
     
     @Override
     public void runOpMode() {
         while (!isStopRequested() && !opModeIsActive()) {
-
         }
         setup(START);
         claw.on();
         claw.update();
         sleepTools(500);
         goTo(INT);
-        splineTo(SCORE);
+        turn(45);
         sleepTools(500);
         lift.setTargetPosition(MultipleMotorLift.Position.TOP_POSITION_CONTROL);
         arm.setTargetPosition(Arm.Position.DUMPING);
@@ -43,11 +43,13 @@ public class Red_Left extends AutoOpMode {
         sleepTools(500);
         claw.on();
         claw.update();
+        sleepTools(100);
+        arm.setTargetPosition(Arm.Position.HOME);
         sleepTools(500);
         lift.setTargetPosition(MultipleMotorLift.Position.BOTTOM_POSITION_CONTROL);
         lift.update();
         sleepTools(1500);
-        arm.setTargetPosition(Arm.Position.HOME);
+        goTo(INT2);
         goTo(ASCENT);
         Arm.customAngle = 140;
         arm.setTargetPosition(Arm.Position.CUSTOM);
