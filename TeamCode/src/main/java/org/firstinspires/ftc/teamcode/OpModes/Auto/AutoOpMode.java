@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.VelConstraint;
 //import com.acmerobotics.roadrunner.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
@@ -18,10 +19,12 @@ import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
+import org.firstinspires.ftc.teamcode.core.tools.MultipleMotorLift;
 import org.firstinspires.ftc.teamcode.core.tools.ToggleablePositionServo;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import oldcode.Subsystems.Claw;
 
@@ -31,7 +34,7 @@ public abstract class AutoOpMode extends LinearOpMode {
     public MecanumDrive drive;
     public Arm arm;
     public ToggleablePositionServo claw;
-
+    public MultipleMotorLift lift;
     public Speed speed = Speed.FAST;
 
     private static final TranslationalVelConstraint accelConstraint =
@@ -85,8 +88,9 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     public void setup(Position startPosition) {
         drive = new MecanumDrive(hardwareMap,startPosition.toPose2d());
+        this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
         this.arm = new Arm(hardwareMap, this.telemetry,null);
-        this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", true);
+        this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", false);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
         }
@@ -100,6 +104,21 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     public Speed getSpeed() {
         return speed;
+    }
+
+    void runForTime(long ms, Runnable run) {
+        Timing.Timer timer = new Timing.Timer(ms,  TimeUnit.MILLISECONDS);
+        timer.start();
+        while (!timer.done()) {
+            run.run();
+        }
+    }
+
+    void sleepTools(long ms) {
+        runForTime(ms, () -> {
+            lift.update();
+            arm.update();
+        });
     }
 
     private VelConstraint getVelConstraint() {

@@ -1,54 +1,60 @@
 package org.firstinspires.ftc.teamcode.OpModes.Auto;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
 import org.firstinspires.ftc.teamcode.core.tools.MultipleMotorLift;
-import org.firstinspires.ftc.teamcode.core.tools.ToggleablePositionServo;
 
 @Config
 @Autonomous(group="!CompOpModes")
-public class Red_Right extends org.firstinspires.ftc.teamcode.OpModes.Auto.AutoOpMode {
+public class Red_Left extends AutoOpMode {
 
     //------------------------------------------------------------
     //--- Field Positions ---
     //------------------------------------------------------------
 
     //--- Scoring Side, align right side of the tile
-    public static Position START = new Position(36, -63, 270);
-    public static Position INT = new Position(36, -36, 270);
-    public static Position INT2 = new Position(-60, -36, 270);
-    public static Position SCORE = new Position(-60, -36, 270);
-    public static Position ASCENT = new Position(-36, 12, 270);
-
-
+    public static Position START = new Position(-36, -63, 180);
+    public static Position INT = new Position(-50, -60, 180);
+    public static Position SCORE = new Position(-50, -60, 225);
+    public static Position INT2 = new Position(-50, -12, 225);
+    public static Position ASCENT = new Position(-28, -12, 225);
 
     
     @Override
     public void runOpMode() {
         while (!isStopRequested() && !opModeIsActive()) {
-
         }
         setup(START);
         claw.on();
         claw.update();
+        sleepTools(500);
         goTo(INT);
-        goTo(INT2);
-        goTo(SCORE);
+        turn(45);
+        sleepTools(500);
         lift.setTargetPosition(MultipleMotorLift.Position.TOP_POSITION_CONTROL);
-        lift.update();
         arm.setTargetPosition(Arm.Position.DUMPING);
-        sleep(2000);
+        sleepTools(2000);
+        claw.off();
         claw.update();
-        sleep(500);
+        sleepTools(500);
+        claw.on();
         claw.update();
-        sleep(500);
+        sleepTools(100);
+        arm.setTargetPosition(Arm.Position.HOME);
+        sleepTools(500);
         lift.setTargetPosition(MultipleMotorLift.Position.BOTTOM_POSITION_CONTROL);
         lift.update();
-        sleep(1500);
-        arm.setTargetPosition(Arm.Position.HOME);
+        sleepTools(1500);
+        goTo(INT2);
         goTo(ASCENT);
+        Arm.customAngle = 140;
+        arm.setTargetPosition(Arm.Position.CUSTOM);
+        sleepTools(3000);
+        Arm.lastAutoAngle = arm.getCurrentPosition();
     }
 
 }

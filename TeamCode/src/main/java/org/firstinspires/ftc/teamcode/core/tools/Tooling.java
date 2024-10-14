@@ -62,8 +62,8 @@ public class Tooling implements Subsystem {
             claw.toggle();
         }
 
-        if (gamepad.wasJustReleased(GamepadKeys.Button.BACK)) {
-            arm.resetExtensionMotor();
+        if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER)) {
+            arm.resetArmPosition();
         }
 
         arm.update();

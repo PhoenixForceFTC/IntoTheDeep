@@ -26,6 +26,7 @@ import java.util.function.DoubleSupplier;
 
 @Config
 public class Arm implements Subsystem {
+    public static double lastAutoAngle = 0;
     public enum Position {
         HOME(180 + 27D),
         PENETRATION(-14), //changed from -15 due to altered starting pos
@@ -41,7 +42,9 @@ public class Arm implements Subsystem {
             this.angle = degrees;
         }
     }
-
+    void resetArmPosition() {
+        motors.get(0).stopAndResetEncoder();
+    }
     private final double liftInchesPerTicks = 31.875D/1581D;
     private final double axleHeightIn = 11; // inches
     private final double zeroExtension = 18; // inches
@@ -69,7 +72,9 @@ public class Arm implements Subsystem {
 
         MotorEx motor1 = new MotorEx(hardwareMap, "rightArm", Motor.GoBILDA.RPM_30);
         motor1.setInverted(true);
-        motor1.stopAndResetEncoder();
+        if (Math.abs(lastAutoAngle) < 1e-6) {
+            motor1.stopAndResetEncoder();
+        }
 
         motors.add(motor1);
 
