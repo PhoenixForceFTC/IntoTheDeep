@@ -80,6 +80,10 @@ public class Arm implements Subsystem {
         this.telemetry = telemetry;
 
         this.extension = hardwareMap.get(DcMotorEx.class, "liftExtension");
+        resetExtensionMotor();
+    }
+
+    void resetExtensionMotor() {
         extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extension.setTargetPosition(0);
         extension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
