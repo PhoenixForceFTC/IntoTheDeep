@@ -8,8 +8,6 @@ import com.arcrobotics.ftclib.controller.wpilibcontroller.ArmFeedforward;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.util.MathUtils;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -43,13 +41,13 @@ public class Arm implements Subsystem {
         }
     }
     void resetArmPosition() {
-        motors.get(0).stopAndResetEncoder();
+        armMotors.get(0).stopAndResetEncoder();
     }
     private final double liftInchesPerTicks = 31.875D/1581D;
     private final double axleHeightIn = 11; // inches
     private final double zeroExtension = 18; // inches
 
-    private final ArrayList<MotorEx> motors = new ArrayList<>(1); // only one for now, just want to make scalable
+    private final ArrayList<MotorEx> armMotors = new ArrayList<>(1); // only one for now, just want to make scalable
     private final DoubleSupplier manual;
 
     private ArmFeedforward armFeedforwardController;
@@ -61,7 +59,7 @@ public class Arm implements Subsystem {
     public static double kP = 0.03, kI = 0, kD = 0.001, kG = 0.145;
 
     private final Telemetry telemetry;
-    private final DcMotorEx extension;
+    private final MultipleMotorLift extension;
 
     public static int extensionPosition = 0;
     public static final int MAX_EXTENSION = 1300;
@@ -70,13 +68,13 @@ public class Arm implements Subsystem {
         Arm.extensionPosition = 0;
         Arm.target = Position.HOME;
 
-        MotorEx motor1 = new MotorEx(hardwareMap, "rightArm", Motor.GoBILDA.RPM_30);
-        motor1.setInverted(true);
+        MotorEx armMotor1 = new MotorEx(hardwareMap, "arm", Motor.GoBILDA.RPM_30);
+        armMotor1.setInverted(true);
         if (Math.abs(lastAutoAngle) < 1e-6) {
-            motor1.stopAndResetEncoder();
+            armMotor1.stopAndResetEncoder();
         }
 
-        motors.add(motor1);
+        armMotors.add(armMotor1);
 
         feedbackController = new PIDController(kP, kI, kD);
         armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
@@ -84,16 +82,8 @@ public class Arm implements Subsystem {
         this.manual = manualPowerController;
         this.telemetry = telemetry;
 
-        this.extension = hardwareMap.get(DcMotorEx.class, "liftExtension");
-        resetExtensionMotor();
-    }
-
-    void resetExtensionMotor() {
-        extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extension.setTargetPosition(0);
-        extension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extension.setPower(1);
-        extension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extension = new MultipleMotorLift(hardwareMap, telemetry, null);
+        extension.setTargetPosition(MultipleMotorLift.Position.CUSTOM);
     }
 
     @Override
@@ -102,7 +92,7 @@ public class Arm implements Subsystem {
         armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
 
         double targetAngle = target.angle;
-        extension.setTargetPosition(Arm.extensionPosition);
+        MultipleMotorLift.customHeight = Arm.extensionPosition;
 
         switch (target) { // OVERRIDES
             case MANUAL:
@@ -132,11 +122,11 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentPosition() {
-        return motors.get(0).getCurrentPosition() / motors.get(0).getCPR() * 360 + Position.HOME.angle;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 360 + Position.HOME.angle;
     }
 
     public void setPower(double power) {
-        motors.forEach(m -> m.set(power));
+        armMotors.forEach(m -> m.set(power));
     }
 
     public void setTargetPosition(Position position) {
