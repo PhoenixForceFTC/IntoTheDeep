@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.core.Subsystem;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
+@Deprecated
 @Config
 public class Lift implements Subsystem {
     public enum Position {
