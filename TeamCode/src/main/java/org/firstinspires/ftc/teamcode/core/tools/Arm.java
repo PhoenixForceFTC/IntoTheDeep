@@ -1,4 +1,7 @@
 package org.firstinspires.ftc.teamcode.core.tools;
+// VARIES WITH SINE TIMES GRAVITY CONSTANT FOR ITS PID
+// TRIGGERS MOVE EACH DIRECTION
+
 
 import androidx.annotation.Nullable;
 
@@ -17,9 +20,6 @@ import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
 // ADDITIONAL MOTOR
-// VARIES WITH SINE TIMES GRAVITY CONSTANT FOR ITS PID
-// TRIGGERS MOVE EACH DIRECTION
-
 
 
 @Config
@@ -53,10 +53,10 @@ public class Arm implements Subsystem {
     private ArmFeedforward armFeedforwardController;
     private final PIDController feedbackController;
 
-    public static Position target = Position.HOME;
+    public static Position target = Position.CUSTOM;
     public static double customAngle = 0D;
 
-    public static double kP = 0.03, kI = 0, kD = 0.001, kG = 0.145;
+    public static double kP = 0.038, kI = 0, kD = 0.0023, kG = 0.16, kF = 0.0002;
 
     private final Telemetry telemetry;
     private final MultipleMotorLift extension;
@@ -66,9 +66,9 @@ public class Arm implements Subsystem {
 
     public Arm(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
         Arm.extensionPosition = 0;
-        Arm.target = Position.HOME;
+        Arm.target = Position.CUSTOM;
 
-        MotorEx armMotor1 = new MotorEx(hardwareMap, "arm", Motor.GoBILDA.RPM_30);
+        MotorEx armMotor1 = new MotorEx(hardwareMap, "arm", Motor.GoBILDA.RPM_312);
         armMotor1.setInverted(true);
         if (Math.abs(lastAutoAngle) < 1e-6) {
             armMotor1.stopAndResetEncoder();
@@ -89,10 +89,11 @@ public class Arm implements Subsystem {
     @Override
     public void update() {
         feedbackController.setPID(kP, kI, kD);
-        armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
+        armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
 
         double targetAngle = target.angle;
-        MultipleMotorLift.customHeight = Arm.extensionPosition;
+        // TODO uncomment
+        // MultipleMotorLift.customHeight = Arm.extensionPosition;
 
         switch (target) { // OVERRIDES
             case MANUAL:
@@ -122,7 +123,7 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentPosition() {
-        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 360 + Position.HOME.angle;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360;
     }
 
     public void setPower(double power) {

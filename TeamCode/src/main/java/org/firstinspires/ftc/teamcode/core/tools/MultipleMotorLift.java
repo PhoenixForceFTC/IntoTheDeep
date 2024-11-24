@@ -37,25 +37,28 @@ public class MultipleMotorLift implements Subsystem {
     private final PIDFController feedbackController;
     private final DoubleSupplier manual;
 
-    public static Position target = Position.BOTTOM_POSITION_CONTROL;
+    public static Position target = Position.CUSTOM;
     public static int customHeight = 0;
 
     public static double liftTickSpeed = 30;
     private final Telemetry telemetry;
 
     private int lastTargetTicks = 0;
-    public static double kP = 0.02, kI = 0.007, kD = 0.0005, kF = 0.002;
+    public static double kP = 0.02, kI = 0.00, kD = 0.000, kF = 0.00;
     public MultipleMotorLift(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
-        MultipleMotorLift.target = Position.BOTTOM_POSITION_CONTROL;
+        MultipleMotorLift.target = Position.CUSTOM;
 
         left = new MotorEx(hardwareMap, "extension1", Motor.GoBILDA.RPM_435);
-        left.stopAndResetEncoder();
+        left.setInverted(true);
 
         right = new MotorEx(hardwareMap, "extension2", Motor.GoBILDA.RPM_435);
-        right.setInverted(true);
-        right.stopAndResetEncoder();
+        right.setInverted(false);
 
         motors = listFromParams(left, right);
+        motors.forEach(m -> {
+            m.stopAndResetEncoder();
+            m.setDistancePerPulse(10/42D);
+        });
 
         feedbackController = new PIDFController(kP, kI, kD, kF);
 
@@ -89,12 +92,12 @@ public class MultipleMotorLift implements Subsystem {
         }
 
         // the numbers below can be different, likely should be eliminated if not worried about a "slam"
-        final double feedbackOutput = current > 2 || targetTicks > 1 ? feedbackController.calculate(current, targetTicks) : 0;
+        final double feedbackOutput = /*current > 2 || targetTicks > 1 ? */feedbackController.calculate(current, targetTicks) /*: 0*/;
 
         telemetry.addData("current extension", current);
         telemetry.addData("target lift", targetTicks);
 
-        motors.forEach(m -> m.set(MathUtils.clamp(feedbackOutput, -1, 1)));
+        motors.forEach(m -> m.set(MathUtils.clamp(-feedbackOutput, -1, 1)));
     }
 
     public int getCurrentPosition() {
@@ -114,6 +117,6 @@ public class MultipleMotorLift implements Subsystem {
     }
 
     public int getTargetPosition() {
-        return target.height;
+        return target.height != -1 ? target.height : customHeight;
     }
 }
