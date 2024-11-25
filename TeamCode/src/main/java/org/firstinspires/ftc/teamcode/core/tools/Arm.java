@@ -26,10 +26,10 @@ import java.util.function.DoubleSupplier;
 public class Arm implements Subsystem {
     public static double lastAutoAngle = 0;
     public enum Position {
-        HOME(180 + 27D),
-        PENETRATION(-14), //changed from -15 due to altered starting pos
-        GRABBING(-44), // changed from -30
-        DUMPING(42),
+        HOME(0),
+        PENETRATION(-4), //changed from -15 due to altered starting pos
+        GRABBING(-9), // changed from -30
+        DUMPING(100),
         MANUAL(-1),
         GRABBING_TELEOP(-1),
         CUSTOM(-1);
@@ -123,7 +123,7 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentPosition() {
-        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 9;
     }
 
     public void setPower(double power) {
