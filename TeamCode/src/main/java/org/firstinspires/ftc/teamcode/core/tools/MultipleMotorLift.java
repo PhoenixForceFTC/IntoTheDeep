@@ -48,10 +48,10 @@ public class MultipleMotorLift implements Subsystem {
     public MultipleMotorLift(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
         MultipleMotorLift.target = Position.CUSTOM;
 
-        left = new MotorEx(hardwareMap, "extension1", Motor.GoBILDA.RPM_435);
+        left = new MotorEx(hardwareMap, "extension2", Motor.GoBILDA.RPM_435);
         left.setInverted(true);
 
-        right = new MotorEx(hardwareMap, "extension2", Motor.GoBILDA.RPM_435);
+        right = new MotorEx(hardwareMap, "extension1", Motor.GoBILDA.RPM_435);
         right.setInverted(false);
 
         motors = listFromParams(left, right);
@@ -97,7 +97,7 @@ public class MultipleMotorLift implements Subsystem {
         telemetry.addData("current extension", current);
         telemetry.addData("target lift", targetTicks);
 
-        motors.forEach(m -> m.set(MathUtils.clamp(-feedbackOutput, -1, 1)));
+        motors.forEach(m -> m.set(MathUtils.clamp(feedbackOutput, -1, 1)));
     }
 
     public int getCurrentPosition() {
