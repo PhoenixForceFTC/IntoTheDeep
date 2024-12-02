@@ -14,16 +14,17 @@ public class Tooling implements Subsystem {
     final MultipleMotorLift lift;
     final GamepadEx gamepad;
 
-    public static int tickIncreasePerLoop = 40;
+    public static double tickIncreasePerLoop = 40D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
-        this.arm = new Arm(hardwareMap, telemetry, null);
-        this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
+        this.arm = new Arm(hardwareMap, telemetry, toolGamepad::getRightY);
+        this.lift = new MultipleMotorLift(hardwareMap, telemetry, toolGamepad::getLeftY);
         this.gamepad = toolGamepad;
     }
 
     @Override
     public void update() {
         gamepad.readButtons();
+
         if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_STICK_BUTTON)) {
             arm.setTargetPosition(Arm.Position.MANUAL);
         } else if (gamepad.wasJustReleased(GamepadKeys.Button.X)) {
@@ -38,11 +39,8 @@ public class Tooling implements Subsystem {
         }
         final double rightTrigger = gamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
         final double leftTrigger = gamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-        Arm.extensionPosition = Math.max(-3500, Arm.extensionPosition + (
-                tickIncreasePerLoop * (
-                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? 1 :
-                                (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? -1 : 0)
-                )));
+        // TODO add back after tuning
+        // Arm.extensionPosition = Math.max(0, Math.min(Arm.MAX_EXTENSION, Arm.extensionPosition + (int) Math.round((rightTrigger > leftTrigger ? rightTrigger : leftTrigger * -1) * tickIncreasePerLoop)));
 
         if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_STICK_BUTTON)) {
             lift.setTargetPosition(MultipleMotorLift.Position.MANUAL);
