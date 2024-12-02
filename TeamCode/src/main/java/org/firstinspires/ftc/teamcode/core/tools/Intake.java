@@ -8,7 +8,7 @@ public class Intake {
     private DcMotorSimple motor;
     private double speed;
     public Intake(HardwareMap hardwareMap, String motorOrServoName, double speed) {
-        hardwareMap.get(DcMotorSimple.class, motorOrServoName);
+        motor = hardwareMap.get(DcMotorSimple.class, motorOrServoName);
         this.speed = speed;
     }
 
