@@ -92,8 +92,7 @@ public class Arm implements Subsystem {
         armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
 
         double targetAngle = target.angle;
-        // TODO uncomment
-        // MultipleMotorLift.customHeight = Arm.extensionPosition;
+        MultipleMotorLift.customHeight = Arm.extensionPosition;
 
         switch (target) { // OVERRIDES
             case MANUAL:

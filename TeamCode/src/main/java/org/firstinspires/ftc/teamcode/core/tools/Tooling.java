@@ -13,11 +13,14 @@ public class Tooling implements Subsystem {
     final Arm arm;
     final MultipleMotorLift lift;
     final GamepadEx gamepad;
+    final Intake intake;
 
-    public static int tickIncreasePerLoop = 40;
+    public static int extensionIncreasePerLoop = 17;
+    public static double armIncreasePerLoop = 1.7D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
         this.arm = new Arm(hardwareMap, telemetry, null);
         this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
+        this.intake = new Intake(hardwareMap, "intake");
         this.gamepad = toolGamepad;
     }
 
@@ -40,11 +43,21 @@ public class Tooling implements Subsystem {
         */
         final double rightTrigger = gamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
         final double leftTrigger = gamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-        Arm.extensionPosition = Math.max(-3500, Arm.extensionPosition + (
-                tickIncreasePerLoop * (
-                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? 1 :
-                                (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? -1 : 0)
+        if (leftTrigger > rightTrigger * .8) {
+            Arm.customAngle += (armIncreasePerLoop * leftTrigger);
+        } else {
+            Arm.customAngle -= (armIncreasePerLoop * rightTrigger);
+        }
+        Arm.extensionPosition = Math.max(gamepad.getButton(GamepadKeys.Button.START) ? -3500 : 0, Arm.extensionPosition + (
+                extensionIncreasePerLoop * (
+                        gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1 :
+                                (gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? -1 : 0)
                 )));
+        if (gamepad.getButton(GamepadKeys.Button.A)) {
+            intake.intake();
+        } else if (gamepad.getButton(GamepadKeys.Button.B)) {
+            intake.extake();
+        }
 
         /*
         if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_STICK_BUTTON)) {
