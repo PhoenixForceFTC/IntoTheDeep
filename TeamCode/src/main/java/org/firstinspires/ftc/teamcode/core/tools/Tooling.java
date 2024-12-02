@@ -24,6 +24,7 @@ public class Tooling implements Subsystem {
     @Override
     public void update() {
         gamepad.readButtons();
+        /*
         if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_STICK_BUTTON)) {
             arm.setTargetPosition(Arm.Position.MANUAL);
         } else if (gamepad.wasJustReleased(GamepadKeys.Button.X)) {
@@ -36,6 +37,7 @@ public class Tooling implements Subsystem {
             arm.setTargetPosition(Arm.Position.HOME);
             Arm.extensionPosition = 0;
         }
+        */
         final double rightTrigger = gamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
         final double leftTrigger = gamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
         Arm.extensionPosition = Math.max(-3500, Arm.extensionPosition + (
@@ -44,6 +46,7 @@ public class Tooling implements Subsystem {
                                 (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? -1 : 0)
                 )));
 
+        /*
         if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_STICK_BUTTON)) {
             lift.setTargetPosition(MultipleMotorLift.Position.MANUAL);
         } else if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
@@ -55,13 +58,9 @@ public class Tooling implements Subsystem {
             arm.setTargetPosition(Arm.Position.PENETRATION);
             Arm.extensionPosition = 0;
         }
-
+         */
         if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
             // run intake
-        }
-
-        if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER)) {
-            arm.resetArmPosition();
         }
 
         arm.update();
