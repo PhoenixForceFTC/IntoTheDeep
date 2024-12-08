@@ -100,7 +100,7 @@ public class Arm implements Subsystem {
 
         switch (target) { // OVERRIDES
             case MANUAL:
-                setPower(MathUtils.clamp(manual.getAsDouble() + (kG * (Math.cos(Math.toRadians(getCurrentPosition())))), -1, 1));
+                setPower(MathUtils.clamp(manual.getAsDouble() + (kG * (Math.cos(Math.toRadians(getCurrentAngle())))), -1, 1));
                 return;
             case CUSTOM:
                 targetAngle = customAngle;
@@ -109,7 +109,7 @@ public class Arm implements Subsystem {
                 targetAngle = Math.toDegrees(Math.acos(axleHeightIn/(extension.getCurrentPosition() * liftInchesPerTicks + zeroExtension))) - 95;
         }
 
-        double currentDegrees = getCurrentPosition();
+        double currentDegrees = getCurrentAngle();
         double currentRadians = Math.toRadians(currentDegrees);
         final double output =
                 currentDegrees < Position.HOME.angle - 7D || targetAngle < Position.HOME.angle - 7D ?
@@ -125,15 +125,19 @@ public class Arm implements Subsystem {
         setPower(MathUtils.clamp(output, -1, 1));
     }
 
-    public double getCurrentPosition() {
+    public double getCurrentAngle() {
         return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 20;
+    }
+
+    public double getTargetAngle() {
+        return target.angle != -1 ? target.angle : customAngle;
     }
 
     public void setPower(double power) {
         armMotors.forEach(m -> m.set(power));
     }
 
-    public void setTargetPosition(Position position) {
+    public void setTargetAngle(Position position) {
         Arm.target = position;
     }
 
@@ -146,7 +150,7 @@ public class Arm implements Subsystem {
         extension.setTargetPosition(position);
     }
 
-    public int ExtensionPosition() {
+    public int getExtensionPosition() {
         return Arm.extensionPosition;
     }
 
