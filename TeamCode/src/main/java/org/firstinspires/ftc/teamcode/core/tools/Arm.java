@@ -26,10 +26,11 @@ import java.util.function.DoubleSupplier;
 public class Arm implements Subsystem {
     public static double lastAutoAngle = 0;
     public enum Position {
-        HOME(180 + 27D),
-        PENETRATION(-14), //changed from -15 due to altered starting pos
-        GRABBING(-44), // changed from -30
-        DUMPING(42),
+        HOME(0),
+        PENETRATION(-10), //changed from -15 due to altered starting pos
+        GRABBING(-15), // changed from -30
+        DUMPING(90),
+        ANGLED_DUMP(70),
         MANUAL(-1),
         GRABBING_TELEOP(-1),
         CUSTOM(-1);
@@ -92,7 +93,7 @@ public class Arm implements Subsystem {
         armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
 
         double targetAngle = target.angle;
-        MultipleMotorLift.customHeight = Arm.extensionPosition;
+        extension.setTargetPosition(Arm.extensionPosition);
 
         switch (target) { // OVERRIDES
             case MANUAL:

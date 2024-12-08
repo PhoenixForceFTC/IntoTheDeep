@@ -38,7 +38,7 @@ public class MultipleMotorLift implements Subsystem {
     private final DoubleSupplier manual;
 
     public static Position target = Position.CUSTOM;
-    public static int customHeight = 0;
+    private int customHeight = 0;
 
     public static double liftTickSpeed = 30;
     private final Telemetry telemetry;
@@ -114,6 +114,14 @@ public class MultipleMotorLift implements Subsystem {
         }
         lastTargetTicks = MultipleMotorLift.target.height;
         MultipleMotorLift.target = position;
+    }
+
+    public void setTargetPosition(int ticks) {
+        if (MultipleMotorLift.target != Position.CUSTOM) {
+            throw new IllegalStateException("not in custom mode, can't set custom height.");
+        }
+        lastTargetTicks = ticks;
+        customHeight = ticks;
     }
 
     public int getTargetPosition() {
