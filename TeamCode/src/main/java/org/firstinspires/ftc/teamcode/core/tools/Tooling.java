@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.core.tools;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.gamepad.ButtonReader;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,18 +14,20 @@ public class Tooling implements Subsystem {
     final Arm arm;
     final MultipleMotorLift lift;
     final GamepadEx gamepad;
-
-    public static double tickIncreasePerLoop = 40D;
+    final Intake intake;
+    public static int extensionIncreasePerLoop = 17;
+    public static double armIncreasePerLoop = 1.7D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
-        this.arm = new Arm(hardwareMap, telemetry, toolGamepad::getRightY);
-        this.lift = new MultipleMotorLift(hardwareMap, telemetry, toolGamepad::getLeftY);
+        this.arm = new Arm(hardwareMap, telemetry, null);
+        this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
+        this.intake = new Intake(hardwareMap, "intake", -1);
         this.gamepad = toolGamepad;
     }
 
     @Override
     public void update() {
         gamepad.readButtons();
-
+        /*
         if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_STICK_BUTTON)) {
             arm.setTargetPosition(Arm.Position.MANUAL);
         } else if (gamepad.wasJustReleased(GamepadKeys.Button.X)) {
@@ -37,11 +40,26 @@ public class Tooling implements Subsystem {
             arm.setTargetPosition(Arm.Position.HOME);
             Arm.extensionPosition = 0;
         }
+        */
         final double rightTrigger = gamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
         final double leftTrigger = gamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-        // TODO add back after tuning
-        // Arm.extensionPosition = Math.max(0, Math.min(Arm.MAX_EXTENSION, Arm.extensionPosition + (int) Math.round((rightTrigger > leftTrigger ? rightTrigger : leftTrigger * -1) * tickIncreasePerLoop)));
+        if (leftTrigger > rightTrigger * .8) {
+            Arm.customAngle += (armIncreasePerLoop * leftTrigger);
+        } else {
+            Arm.customAngle -= (armIncreasePerLoop * rightTrigger);
+        }
+        Arm.extensionPosition = Math.max(gamepad.getButton(GamepadKeys.Button.START) ? -3500 : 0, Arm.extensionPosition + (
+                extensionIncreasePerLoop * (
+                        gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1 :
+                                (gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? -1 : 0)
+                )));
+        if (gamepad.wasJustReleased(GamepadKeys.Button.A)) {
+            intake.intake();
+        } else if (gamepad.wasJustReleased(GamepadKeys.Button.B)) {
+            intake.extake();
+        }
 
+        /*
         if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_STICK_BUTTON)) {
             lift.setTargetPosition(MultipleMotorLift.Position.MANUAL);
         } else if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
@@ -53,13 +71,9 @@ public class Tooling implements Subsystem {
             arm.setTargetPosition(Arm.Position.PENETRATION);
             Arm.extensionPosition = 0;
         }
-
+         */
         if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
             // run intake
-        }
-
-        if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER)) {
-            arm.resetArmPosition();
         }
 
         arm.update();

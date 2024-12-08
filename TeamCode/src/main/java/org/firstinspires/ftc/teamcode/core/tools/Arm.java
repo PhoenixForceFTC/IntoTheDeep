@@ -26,10 +26,10 @@ import java.util.function.DoubleSupplier;
 public class Arm implements Subsystem {
     public static double lastAutoAngle = 0;
     public enum Position {
-        HOME(0),
-        PENETRATION(-4), //changed from -15 due to altered starting pos
-        GRABBING(-9), // changed from -30
-        DUMPING(100),
+        HOME(180 + 27D),
+        PENETRATION(-14), //changed from -15 due to altered starting pos
+        GRABBING(-44), // changed from -30
+        DUMPING(42),
         MANUAL(-1),
         GRABBING_TELEOP(-1),
         CUSTOM(-1);
@@ -56,7 +56,7 @@ public class Arm implements Subsystem {
     public static Position target = Position.CUSTOM;
     public static double customAngle = 0D;
 
-    public static double kP = 0.038, kI = 0, kD = 0.0023, kG = 0.16, kF = 0.0002;
+    public static double kP = 0.06, kI = 0, kD = 0.0038, kG = 0.16, kF = 0.0002, kFS = 0.00014;
 
     private final Telemetry telemetry;
     private final MultipleMotorLift extension;
@@ -92,8 +92,7 @@ public class Arm implements Subsystem {
         armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
 
         double targetAngle = target.angle;
-        // TODO uncomment
-        // MultipleMotorLift.customHeight = Arm.extensionPosition;
+        MultipleMotorLift.customHeight = Arm.extensionPosition;
 
         switch (target) { // OVERRIDES
             case MANUAL:
@@ -113,7 +112,7 @@ public class Arm implements Subsystem {
                         feedbackController.calculate(currentDegrees, targetAngle) +
                                 armFeedforwardController.calculate(
                                         currentRadians, 0
-                                )
+                                )+ (kFS * extension.getTargetPosition())
                 : 0;
         telemetry.addData("target arm angle", targetAngle);
         telemetry.addData("current arm angle", currentDegrees);
@@ -123,7 +122,7 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentPosition() {
-        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 9;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 20;
     }
 
     public void setPower(double power) {
