@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.core.tools;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.gamepad.ButtonReader;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,13 +15,12 @@ public class Tooling implements Subsystem {
     final MultipleMotorLift lift;
     final GamepadEx gamepad;
     final Intake intake;
-
     public static int extensionIncreasePerLoop = 17;
     public static double armIncreasePerLoop = 1.7D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
         this.arm = new Arm(hardwareMap, telemetry, null);
         this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
-        this.intake = new Intake(hardwareMap, "intake");
+        this.intake = new Intake(hardwareMap, "intake", -1);
         this.gamepad = toolGamepad;
     }
 
@@ -53,9 +53,9 @@ public class Tooling implements Subsystem {
                         gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1 :
                                 (gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? -1 : 0)
                 )));
-        if (gamepad.getButton(GamepadKeys.Button.A)) {
+        if (gamepad.wasJustReleased(GamepadKeys.Button.A)) {
             intake.intake();
-        } else if (gamepad.getButton(GamepadKeys.Button.B)) {
+        } else if (gamepad.wasJustReleased(GamepadKeys.Button.B)) {
             intake.extake();
         }
 

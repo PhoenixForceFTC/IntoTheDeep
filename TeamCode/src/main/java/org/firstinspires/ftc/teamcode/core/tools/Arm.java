@@ -56,7 +56,7 @@ public class Arm implements Subsystem {
     public static Position target = Position.CUSTOM;
     public static double customAngle = 0D;
 
-    public static double kP = 0.038, kI = 0, kD = 0.0023, kG = 0.16, kF = 0.0002;
+    public static double kP = 0.06, kI = 0, kD = 0.0038, kG = 0.16, kF = 0.0002, kFS = 0.00014;
 
     private final Telemetry telemetry;
     private final MultipleMotorLift extension;
@@ -112,7 +112,7 @@ public class Arm implements Subsystem {
                         feedbackController.calculate(currentDegrees, targetAngle) +
                                 armFeedforwardController.calculate(
                                         currentRadians, 0
-                                )
+                                )+ (kFS * extension.getTargetPosition())
                 : 0;
         telemetry.addData("target arm angle", targetAngle);
         telemetry.addData("current arm angle", currentDegrees);
@@ -122,7 +122,7 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentPosition() {
-        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 20;
     }
 
     public void setPower(double power) {
