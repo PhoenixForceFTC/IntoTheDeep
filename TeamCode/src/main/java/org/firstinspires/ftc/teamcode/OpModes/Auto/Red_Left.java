@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
@@ -35,7 +33,7 @@ public class Red_Left extends AutoOpMode {
         goTo(INT);
         turn(45);
         sleepTools(500);
-        lift.setTargetPosition(MultipleMotorLift.Position.TOP_POSITION_CONTROL);
+        lift.setTargetPosition(MultipleMotorLift.Position.MAX);
         arm.setTargetPosition(Arm.Position.DUMPING);
         sleepTools(2000);
         claw.off();
@@ -46,7 +44,7 @@ public class Red_Left extends AutoOpMode {
         sleepTools(100);
         arm.setTargetPosition(Arm.Position.HOME);
         sleepTools(500);
-        lift.setTargetPosition(MultipleMotorLift.Position.BOTTOM_POSITION_CONTROL);
+        lift.setTargetPosition(MultipleMotorLift.Position.ZERO);
         lift.update();
         sleepTools(1500);
         goTo(INT2);
