@@ -24,6 +24,9 @@ package org.firstinspires.ftc.teamcode.core;
 
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
@@ -47,9 +50,9 @@ import java.util.Arrays;
         xmlTag = "goBILDAPinpoint",
         description ="goBILDA® Pinpoint Odometry Computer (IMU Sensor Fusion for 2 Wheel Odometry)"
         )
-
 public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
-
+    // y 92
+    // x 160
     private int deviceStatus   = 0;
     private int loopTime       = 0;
     private int xEncoderValue  = 0;
@@ -491,27 +494,27 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
     public float getYOffset(){return readFloat(Register.Y_POD_OFFSET);}
 
     /**
-     * @return a Pose2D containing the estimated position of the robot
+     * @return a Pose2D containing the estimated position of the robot in inches
      */
-    public Pose2D getPosition(){
-        return new Pose2D(DistanceUnit.MM,
-                xPosition,
-                yPosition,
-                AngleUnit.RADIANS,
-                hOrientation);
+    public Pose2d getPosition(){
+        return new Pose2d(
+                getPosX() / DistanceUnit.mmPerInch,
+                getPosY() / DistanceUnit.mmPerInch,
+                getHeading()
+        );
     }
 
-
-
     /**
-     * @return a Pose2D containing the estimated velocity of the robot, velocity is unit per second
+     * @return a Pose2D containing the estimated velocity of the robot, velocity is inch per second
      */
-    public Pose2D getVelocity(){
-        return new Pose2D(DistanceUnit.MM,
-                xVelocity,
-                yVelocity,
-                AngleUnit.RADIANS,
-                hVelocity);
+    public PoseVelocity2d getVelocity(){
+        return new PoseVelocity2d(
+                new Vector2d(
+                        getVelX() / DistanceUnit.mmPerInch,
+                        getVelY() / DistanceUnit.mmPerInch
+                ),
+                getHeadingVelocity());
+
     }
 
 
