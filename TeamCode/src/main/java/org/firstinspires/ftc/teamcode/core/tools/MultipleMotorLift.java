@@ -20,8 +20,9 @@ import androidx.annotation.Nullable;
 @Config
 public class MultipleMotorLift implements Subsystem {
     public enum Position {
-        BOTTOM_POSITION_CONTROL(0),
-        TOP_POSITION_CONTROL(1800),
+        ZERO(0),
+        SPECIMEN_CLIP_ON(1200), // placeholder
+        MAX(1800),
         MANUAL(-1),
         CUSTOM(-1);
 
@@ -78,9 +79,9 @@ public class MultipleMotorLift implements Subsystem {
             case MANUAL:
                 final double gamepad = manual.getAsDouble();
                 targetTicks = Math.max(
-                        Position.BOTTOM_POSITION_CONTROL.height,
+                        Position.ZERO.height,
                         Math.min(
-                                Position.TOP_POSITION_CONTROL.height,
+                                Position.MAX.height,
                                 lastTargetTicks + ((int) Math.round(gamepad * liftTickSpeed))
                         )
                 );
