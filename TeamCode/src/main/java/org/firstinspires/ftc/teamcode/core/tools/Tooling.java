@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.core.tools;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.gamepad.ButtonReader;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,14 +11,14 @@ import org.firstinspires.ftc.teamcode.core.Subsystem;
 @Config
 public class Tooling implements Subsystem {
     final Arm arm;
-    final MultipleMotorLift lift;
+    final Arm.Lift lift;
     final GamepadEx gamepad;
     final Intake intake;
     public static int extensionIncreasePerLoop = 17;
     public static double armIncreasePerLoop = 1.7D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
         this.arm = new Arm(hardwareMap, telemetry, null);
-        this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
+        this.lift = new Arm.Lift(hardwareMap, telemetry, null);
         this.intake = new Intake(hardwareMap, "intake", -1);
         this.gamepad = toolGamepad;
     }

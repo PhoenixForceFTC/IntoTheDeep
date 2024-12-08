@@ -15,11 +15,7 @@ import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-import org.firstinspires.ftc.teamcode.core.Subsystem;
-
-
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
-import org.firstinspires.ftc.teamcode.core.tools.MultipleMotorLift;
 import org.firstinspires.ftc.teamcode.core.tools.ToggleablePositionServo;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
@@ -32,7 +28,6 @@ public abstract class AutoOpMode extends LinearOpMode {
     public MecanumDrive drive;
     public Arm arm;
     public ToggleablePositionServo claw;
-    public MultipleMotorLift lift;
     public Speed speed = Speed.FAST;
 
     private static final TranslationalVelConstraint accelConstraint =
@@ -86,8 +81,9 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     public void setup(Position startPosition) {
         drive = new MecanumDrive(hardwareMap,startPosition.toPose2d());
-        this.lift = new MultipleMotorLift(hardwareMap, telemetry, null);
         this.arm = new Arm(hardwareMap, this.telemetry,null);
+        arm.setTargetPosition(Arm.Position.HOME);
+        arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", false);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
@@ -107,14 +103,13 @@ public abstract class AutoOpMode extends LinearOpMode {
     void runForTime(long ms, Runnable run) {
         Timing.Timer timer = new Timing.Timer(ms,  TimeUnit.MILLISECONDS);
         timer.start();
-        while (!timer.done()) {
+        while (!timer.done() && !isStopRequested()) {
             run.run();
         }
     }
 
     void sleepTools(long ms) {
         runForTime(ms, () -> {
-            lift.update();
             arm.update();
         });
     }

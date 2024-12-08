@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
-import org.firstinspires.ftc.teamcode.core.tools.MultipleMotorLift;
 
 @Config
 @Autonomous(group="!CompOpModes")
@@ -24,8 +23,6 @@ public class Red_Left extends AutoOpMode {
     
     @Override
     public void runOpMode() {
-        while (!isStopRequested() && !opModeIsActive()) {
-        }
         setup(START);
         claw.on();
         claw.update();
@@ -33,7 +30,7 @@ public class Red_Left extends AutoOpMode {
         goTo(INT);
         turn(45);
         sleepTools(500);
-        lift.setTargetPosition(MultipleMotorLift.Position.MAX);
+        arm.setExtensionPosition(Arm.Lift.Position.MAX);
         arm.setTargetPosition(Arm.Position.DUMPING);
         sleepTools(2000);
         claw.off();
@@ -44,8 +41,7 @@ public class Red_Left extends AutoOpMode {
         sleepTools(100);
         arm.setTargetPosition(Arm.Position.HOME);
         sleepTools(500);
-        lift.setTargetPosition(MultipleMotorLift.Position.ZERO);
-        lift.update();
+        arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         sleepTools(1500);
         goTo(INT2);
         goTo(ASCENT);
