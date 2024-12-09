@@ -14,11 +14,12 @@ public class Red_Right extends AutoOpMode {
     //------------------------------------------------------------
 
     //--- Scoring Side, align right side of the tile
-    public static Position START = new Position(-63, 36, 180);
-    public static Position INT = new Position(-36, 36, 180);
-    public static Position INT2 = new Position(-36, -60, 180);
-    public static Position SCORE = new Position(-36, -60, 180);
-    public static Position ASCENT = new Position(12, -36, 180);
+    public static Position START = new Position(-66.25, -36, 0);
+    public static Position SCORE = new Position(-36, -36, 0);
+
+    public static Position INT = new Position(-36, -36, 0);
+    public static Position INT2 = new Position(-36, 60, 0);
+    public static Position ASCENT = new Position(12, 36, 0);
 
 
 
@@ -28,19 +29,23 @@ public class Red_Right extends AutoOpMode {
         setup(START);
         claw.on();
         claw.update();
-        goTo(INT);
-        goTo(INT2);
+
         goTo(SCORE);
-        arm.setExtensionPosition(Arm.Lift.Position.MAX);
+
         arm.setTargetAngle(Arm.Position.DUMPING);
+        arm.setExtensionPosition(Arm.Lift.Position.MAX);
         sleepTools(2000);
-        claw.update();
-        sleepTools(500);
+        claw.off();
         claw.update();
         sleepTools(500);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         sleepTools(1500);
         arm.setTargetAngle(Arm.Position.HOME);
+
+
+        goTo(INT);
+        goTo(INT2);
+
         goTo(ASCENT);
     }
 
