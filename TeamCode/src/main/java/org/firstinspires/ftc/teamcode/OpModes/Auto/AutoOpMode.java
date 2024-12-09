@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
 import org.firstinspires.ftc.teamcode.core.tools.ToggleablePositionServo;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 //next year use trajectory build upon initialiation
 public abstract class AutoOpMode extends LinearOpMode {
 
-    public MecanumDrive drive;
+    public PinpointDrive drive;
     public Arm arm;
     public ToggleablePositionServo claw;
     public Speed speed = Speed.FAST;
@@ -80,7 +81,7 @@ public abstract class AutoOpMode extends LinearOpMode {
     }
 
     public void setup(Position startPosition) {
-        drive = new MecanumDrive(hardwareMap,startPosition.toPose2d());
+        drive = new PinpointDrive(hardwareMap,startPosition.toPose2d());
         this.arm = new Arm(hardwareMap, this.telemetry,null);
         arm.setTargetAngle(Arm.Position.HOME);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
