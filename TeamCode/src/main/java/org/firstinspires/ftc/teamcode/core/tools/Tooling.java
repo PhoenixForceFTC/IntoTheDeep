@@ -17,6 +17,7 @@ public class Tooling implements Subsystem {
 
             ;
     public static int extensionIncreasePerLoop = 17;
+    public static int LOCKOUT = 100;
     public static double armIncreasePerLoop = 1.7D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx driverGamepad, GamepadEx toolGamepad) {
         this.arm = new Arm(hardwareMap, telemetry);
@@ -46,11 +47,16 @@ public class Tooling implements Subsystem {
         } else {
             Arm.customAngle -= (armIncreasePerLoop * rightTrigger);
         }
-        Arm.extensionPosition = Math.max(toolGamepad.getButton(GamepadKeys.Button.START) ? -3500 : 0, Arm.extensionPosition + (
+
+        final int oldDelta = Math.abs(Arm.extensionPosition - arm.getCurrentExtensionPosition());
+        final int newExtensionPosition = Math.max(toolGamepad.getButton(GamepadKeys.Button.START) ? -3500 : 0, Arm.extensionPosition + (
                 extensionIncreasePerLoop * (
                         toolGamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1 :
                                 (toolGamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? -1 : 0)
                 )));
+        if (!(oldDelta > LOCKOUT && Math.signum(oldDelta) == Math.signum(newExtensionPosition - Arm.extensionPosition))) {
+            Arm.extensionPosition = newExtensionPosition;
+        }
         if (toolGamepad.wasJustReleased(GamepadKeys.Button.A)) {
             multiAxisClawAssembly.setPosition(
                     multiAxisClawAssembly.getPosition() == MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL
@@ -65,6 +71,12 @@ public class Tooling implements Subsystem {
 
         if (driverGamepad.wasJustReleased(GamepadKeys.Button.A)) {
             multiAxisClawAssembly.toggle();
+        }
+
+        if (driverGamepad.wasJustPressed(GamepadKeys.Button.BACK)) {
+            arm.pull();
+        } else if (driverGamepad.wasJustReleased(GamepadKeys.Button.BACK)) {
+            arm.stopPulling();
         }
 
         arm.update();

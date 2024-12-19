@@ -63,6 +63,7 @@ public class Arm implements Subsystem {
     public static final int MAX_EXTENSION = 1300;
 
     public Arm(HardwareMap hardwareMap, Telemetry telemetry) {
+        Arm.customAngle = 0;
         Arm.extensionPosition = 0;
         Arm.target = Position.CUSTOM;
 
@@ -97,13 +98,10 @@ public class Arm implements Subsystem {
 
         double currentDegrees = getCurrentAngle();
         double currentRadians = Math.toRadians(currentDegrees);
-        final double output =
-                currentDegrees < Position.HOME.angle - 7D || targetAngle < Position.HOME.angle - 7D ?
-                        feedbackController.calculate(currentDegrees, targetAngle) +
+        final double output = feedbackController.calculate(currentDegrees, targetAngle) +
                                 armFeedforwardController.calculate(
                                         currentRadians, 0
-                                )+ (kFS * extension.getTargetPosition())
-                : 0;
+                                )+ (kFS * extension.getTargetPosition());
         telemetry.addData("target arm angle", targetAngle);
         telemetry.addData("current arm angle", currentDegrees);
         telemetry.addData("extensionTicks", extension.getCurrentPosition());
@@ -137,8 +135,12 @@ public class Arm implements Subsystem {
         extension.setTargetPosition(position);
     }
 
-    public int getExtensionPosition() {
+    public int getTargetExtensionPosition() {
         return Arm.extensionPosition;
+    }
+
+    public int getCurrentExtensionPosition() {
+        return extension.getCurrentPosition();
     }
 
 
@@ -167,6 +169,8 @@ public class Arm implements Subsystem {
         public static double liftTickSpeed = 30;
         private final Telemetry telemetry;
 
+        private boolean pulling = false;
+
         private int lastTargetTicks = 0;
         public static double kP = 0.02, kI = 0.00, kD = 0.000, kF = 0.00;
         public Lift(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -191,23 +195,25 @@ public class Arm implements Subsystem {
 
         @Override
         public void update() {
-            feedbackController.setPIDF(kP, kI, kD, kF);
+            if (!pulling) {
+                feedbackController.setPIDF(kP, kI, kD, kF);
 
-            int targetTicks = target.height;
+                int targetTicks = target.height;
 
-            final int current = getCurrentPosition();
+                final int current = getCurrentPosition();
 
-            if (target == Position.CUSTOM) {
+                if (target == Position.CUSTOM) {
                     targetTicks = customHeight;
+                }
+
+                // the numbers below can be different, likely should be eliminated if not worried about a "slam"
+                final double feedbackOutput = /*current > 2 || targetTicks > 1 ? */feedbackController.calculate(current, targetTicks) /*: 0*/;
+
+                telemetry.addData("current extension", current);
+                telemetry.addData("target lift", targetTicks);
+
+                motors.forEach(m -> m.set(MathUtils.clamp(feedbackOutput, -1, 1)));
             }
-
-            // the numbers below can be different, likely should be eliminated if not worried about a "slam"
-            final double feedbackOutput = /*current > 2 || targetTicks > 1 ? */feedbackController.calculate(current, targetTicks) /*: 0*/;
-
-            telemetry.addData("current extension", current);
-            telemetry.addData("target lift", targetTicks);
-
-            motors.forEach(m -> m.set(MathUtils.clamp(feedbackOutput, -1, 1)));
         }
 
         public int getCurrentPosition() {
@@ -234,5 +240,24 @@ public class Arm implements Subsystem {
         public int getTargetPosition() {
             return target.height != -1 ? target.height : customHeight;
         }
+
+        protected void pull() {
+            pulling = true;
+            motors.forEach(m -> m.set(-1));
+        }
+
+        protected void stopPulling() {
+            Lift.target = Position.CUSTOM;
+            Arm.extensionPosition = getCurrentPosition();
+            pulling = false;
+        }
+    }
+
+    public void pull() {
+        extension.pull();
+    }
+
+    public void stopPulling() {
+        extension.stopPulling();
     }
 }

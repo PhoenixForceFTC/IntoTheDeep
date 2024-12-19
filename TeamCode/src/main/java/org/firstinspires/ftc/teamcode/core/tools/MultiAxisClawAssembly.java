@@ -12,10 +12,10 @@ import dev.frozenmilk.util.units.angle.Angles;
 @Config
 public class MultiAxisClawAssembly extends ToggleablePositionServo {
     public enum Position {
-        SUBMERSIBLE_PICKUP_HORIZONTAL(0, 90),
-        SUBMERSIBLE_PICKUP_VERTICAL(0, 0),
-        WALL_SPECIMEN_PICKUP(90, 90),
-        DUMP_AND_WALL_REMOVAL_AND_HOME(180, 270);
+        SUBMERSIBLE_PICKUP_HORIZONTAL(.835, .875),
+        SUBMERSIBLE_PICKUP_VERTICAL(.853, .54),
+        WALL_SPECIMEN_PICKUP(.55, .854),
+        DUMP_AND_WALL_REMOVAL_AND_HOME(.28, .21);
 
         public final double pitch;
         public final double roll;
@@ -26,8 +26,6 @@ public class MultiAxisClawAssembly extends ToggleablePositionServo {
         }
 
     }
-    public static double SERVO_TICKS_PER_DEGREE = 1 / 355D;
-    public static double PITCH_SERVO_OFFSET = 0.79, ROLL_SERVO_OFFSET = 0.21;
     private final Servo pitch, roll;
 
 
@@ -35,7 +33,7 @@ public class MultiAxisClawAssembly extends ToggleablePositionServo {
     private Position position;
     // add setpoint variables
     public MultiAxisClawAssembly(HardwareMap hardwareMap) {
-        super(hardwareMap, .8, .2, "CLAW", false);
+        super(hardwareMap, .14, .42, "CLAW", false);
         pitch = hardwareMap.get(Servo.class, "PITCH");
         roll = hardwareMap.get(Servo.class, "ROLL");
         this.position = Position.DUMP_AND_WALL_REMOVAL_AND_HOME;
@@ -51,34 +49,18 @@ public class MultiAxisClawAssembly extends ToggleablePositionServo {
     private void setServos() {
         pitch.setPosition(
                 MathUtils.clamp(
-                        position.pitch * -SERVO_TICKS_PER_DEGREE + PITCH_SERVO_OFFSET,
+                        position.pitch,
                         0,
                         1
                 )
         );
         roll.setPosition(
                 MathUtils.clamp(
-                        position.roll * SERVO_TICKS_PER_DEGREE + ROLL_SERVO_OFFSET,
+                        position.roll,
                         0,
                         1
                 )
         );
-    }
-
-    public double getPitchAngle() {
-        return pitchAngle;
-    }
-
-    void setPitchAngleDegrees(double degrees) {
-        this.pitchAngle = degrees;
-    }
-
-    public double getRollAngle() {
-        return rollAngle;
-    }
-
-    void setRollAngleDegrees(double degrees) {
-        this.rollAngle = degrees;
     }
 
     public void setPosition(Position position) {
