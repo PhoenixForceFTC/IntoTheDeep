@@ -11,73 +11,63 @@ import org.firstinspires.ftc.teamcode.core.Subsystem;
 @Config
 public class Tooling implements Subsystem {
     final Arm arm;
-    final Arm.Lift lift;
-    final GamepadEx gamepad;
-    final Intake intake;
+    final GamepadEx driverGamepad, toolGamepad;
+  //  final Intake intake;
+    final MultiAxisClawAssembly multiAxisClawAssembly;
+
+            ;
     public static int extensionIncreasePerLoop = 17;
     public static double armIncreasePerLoop = 1.7D;
-    public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx toolGamepad) {
-        this.arm = new Arm(hardwareMap, telemetry, null);
-        this.lift = new Arm.Lift(hardwareMap, telemetry, null);
-        this.intake = new Intake(hardwareMap, "intake", -1);
-        this.gamepad = toolGamepad;
+    public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx driverGamepad, GamepadEx toolGamepad) {
+        this.arm = new Arm(hardwareMap, telemetry);
+        //  this.intake = new Intake(hardwareMap, "intake", -1);
+        this.driverGamepad = driverGamepad;
+        this.toolGamepad = toolGamepad;
+        this.multiAxisClawAssembly = new MultiAxisClawAssembly(hardwareMap);
     }
 
     @Override
     public void update() {
-        gamepad.readButtons();
-        /*
-        if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_STICK_BUTTON)) {
-            arm.setTargetPosition(Arm.Position.MANUAL);
-        } else if (gamepad.wasJustReleased(GamepadKeys.Button.X)) {
-            arm.setTargetPosition(Arm.Position.PENETRATION);
-            Arm.extensionPosition = 0;
-        } else if (gamepad.wasJustReleased(GamepadKeys.Button.A)) {
-            arm.setTargetPosition(Arm.Position.GRABBING_TELEOP);
-            Arm.extensionPosition = 0;
-        } else if (gamepad.wasJustReleased(GamepadKeys.Button.START)) {
-            arm.setTargetPosition(Arm.Position.HOME);
+        driverGamepad.readButtons();
+        toolGamepad.readButtons();
+        if (driverGamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
+            arm.setTargetAngle(Arm.Position.GRABBING);
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
+            arm.setTargetAngle(Arm.Position.SPECIMEN_PICKUP);
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT)) {
+            arm.setTargetAngle(Arm.Position.HOME);
             Arm.extensionPosition = 0;
         }
-        */
-        final double rightTrigger = gamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
-        final double leftTrigger = gamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
+
+        final double rightTrigger = toolGamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
+        final double leftTrigger = toolGamepad.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
         if (leftTrigger > rightTrigger * .8) {
             Arm.customAngle += (armIncreasePerLoop * leftTrigger);
         } else {
             Arm.customAngle -= (armIncreasePerLoop * rightTrigger);
         }
-        Arm.extensionPosition = Math.max(gamepad.getButton(GamepadKeys.Button.START) ? -3500 : 0, Arm.extensionPosition + (
+        Arm.extensionPosition = Math.max(toolGamepad.getButton(GamepadKeys.Button.START) ? -3500 : 0, Arm.extensionPosition + (
                 extensionIncreasePerLoop * (
-                        gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1 :
-                                (gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? -1 : 0)
+                        toolGamepad.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1 :
+                                (toolGamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? -1 : 0)
                 )));
-        if (gamepad.wasJustReleased(GamepadKeys.Button.A)) {
-            intake.intake();
-        } else if (gamepad.wasJustReleased(GamepadKeys.Button.B)) {
-            intake.extake();
+        if (toolGamepad.wasJustReleased(GamepadKeys.Button.A)) {
+            multiAxisClawAssembly.setPosition(
+                    multiAxisClawAssembly.getPosition() == MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL
+                            ? MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_VERTICAL
+                            : MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL
+            );
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.Y)) {
+            multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.DUMP_AND_WALL_REMOVAL_AND_HOME);
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.X)) {
+            multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.WALL_SPECIMEN_PICKUP);
         }
 
-        /*
-        if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_STICK_BUTTON)) {
-            lift.setTargetPosition(MultipleMotorLift.Position.MANUAL);
-        } else if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
-            lift.setTargetPosition(MultipleMotorLift.Position.TOP_POSITION_CONTROL);
-            arm.setTargetPosition(Arm.Position.DUMPING);
-            Arm.extensionPosition = 500;
-        } else if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
-            lift.setTargetPosition(MultipleMotorLift.Position.BOTTOM_POSITION_CONTROL);
-            arm.setTargetPosition(Arm.Position.PENETRATION);
-            Arm.extensionPosition = 0;
-        }
-         */
-        if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
-            // run intake
+        if (driverGamepad.wasJustReleased(GamepadKeys.Button.A)) {
+            multiAxisClawAssembly.toggle();
         }
 
         arm.update();
-        lift.update();
-        // update intake
-
+        multiAxisClawAssembly.update();
     }
 }

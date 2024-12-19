@@ -22,7 +22,7 @@ public class Main extends LinearOpMode {
         hardwareMap.getAll(LynxModule.class).forEach(hub -> hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO)); // auto caching of sensor reads
         final MecanumDrive drivetrain = new MecanumDrive(hardwareMap, lastAutoPose);
         final GamepadEx driverGamepad = new GamepadEx(gamepad1), toolGamepad = new GamepadEx(gamepad2);
-        final Tooling tooling = new Tooling(hardwareMap, this.telemetry, driverGamepad);
+        final Tooling tooling = new Tooling(hardwareMap, this.telemetry, driverGamepad, toolGamepad);
         waitForStart();
         while (opModeIsActive()) {
             drivetrain.setDrivePowers(new PoseVelocity2d(

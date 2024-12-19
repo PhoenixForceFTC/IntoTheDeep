@@ -82,7 +82,7 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     public void setup(Position startPosition) {
         drive = new PinpointDrive(hardwareMap,startPosition.toPose2d());
-        this.arm = new Arm(hardwareMap, this.telemetry,null);
+        this.arm = new Arm(hardwareMap, this.telemetry);
         arm.setTargetAngle(Arm.Position.HOME);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", false);

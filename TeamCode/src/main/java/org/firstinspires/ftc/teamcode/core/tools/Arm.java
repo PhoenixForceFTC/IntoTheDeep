@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.DoubleSupplier;
 
 // ADDITIONAL MOTOR
@@ -30,12 +31,9 @@ public class Arm implements Subsystem {
     public static double lastAutoAngle = 0;
     public enum Position {
         HOME(0),
-        PENETRATION(-10), //changed from -15 due to altered starting pos
         GRABBING(-15), // changed from -30
-        DUMPING(90),
-        ANGLED_DUMP(70),
-        MANUAL(-1),
-        GRABBING_TELEOP(-1),
+        DUMPING(95),
+        SPECIMEN_PICKUP(20),
         CUSTOM(-1);
 
         public final double angle;
@@ -47,12 +45,8 @@ public class Arm implements Subsystem {
     void resetArmPosition() {
         armMotors.get(0).stopAndResetEncoder();
     }
-    private final double liftInchesPerTicks = 31.875D/1581D;
-    private final double axleHeightIn = 11; // inches
-    private final double zeroExtension = 18; // inches
 
     private final ArrayList<MotorEx> armMotors = new ArrayList<>(1); // only one for now, just want to make scalable
-    private final DoubleSupplier manual;
 
     private ArmFeedforward armFeedforwardController;
     private final PIDController feedbackController;
@@ -68,11 +62,11 @@ public class Arm implements Subsystem {
     public static int extensionPosition = 0;
     public static final int MAX_EXTENSION = 1300;
 
-    public Arm(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
+    public Arm(HardwareMap hardwareMap, Telemetry telemetry) {
         Arm.extensionPosition = 0;
         Arm.target = Position.CUSTOM;
 
-        MotorEx armMotor1 = new MotorEx(hardwareMap, "arm", Motor.GoBILDA.RPM_312);
+        MotorEx armMotor1 = new MotorEx(hardwareMap, "arm", Motor.GoBILDA.RPM_223);
         armMotor1.setInverted(true);
         if (Math.abs(lastAutoAngle) < 1e-6) {
             armMotor1.stopAndResetEncoder();
@@ -83,10 +77,9 @@ public class Arm implements Subsystem {
         feedbackController = new PIDController(kP, kI, kD);
         armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
 
-        this.manual = manualPowerController;
         this.telemetry = telemetry;
 
-        extension = new Lift(hardwareMap, telemetry, null);
+        extension = new Lift(hardwareMap, telemetry);
         extension.setTargetPosition(Lift.Position.CUSTOM);
     }
 
@@ -98,15 +91,8 @@ public class Arm implements Subsystem {
         double targetAngle = target.angle;
         extension.setTargetPosition(Arm.extensionPosition);
 
-        switch (target) { // OVERRIDES
-            case MANUAL:
-                setPower(MathUtils.clamp(manual.getAsDouble() + (kG * (Math.cos(Math.toRadians(getCurrentAngle())))), -1, 1));
-                return;
-            case CUSTOM:
-                targetAngle = customAngle;
-                break;
-            case GRABBING_TELEOP:
-                targetAngle = Math.toDegrees(Math.acos(axleHeightIn/(extension.getCurrentPosition() * liftInchesPerTicks + zeroExtension))) - 95;
+        if (target == Position.CUSTOM) {
+            targetAngle = customAngle;
         }
 
         double currentDegrees = getCurrentAngle();
@@ -123,6 +109,7 @@ public class Arm implements Subsystem {
         telemetry.addData("extensionTicks", extension.getCurrentPosition());
         telemetry.addData("extensionTarget", extension.getTargetPosition());
         setPower(MathUtils.clamp(output, -1, 1));
+        extension.update();
     }
 
     public double getCurrentAngle() {
@@ -161,7 +148,6 @@ public class Arm implements Subsystem {
             ZERO(0),
             SPECIMEN_CLIP_ON(1200), // placeholder
             MAX(1800),
-            MANUAL(-1),
             CUSTOM(-1);
 
             public final int height;
@@ -174,7 +160,6 @@ public class Arm implements Subsystem {
         private final ArrayList<MotorEx> motors;
         private final MotorEx left, right;
         private final PIDFController feedbackController;
-        private final DoubleSupplier manual;
 
         public static Position target = Position.CUSTOM;
         private int customHeight = 0;
@@ -184,7 +169,7 @@ public class Arm implements Subsystem {
 
         private int lastTargetTicks = 0;
         public static double kP = 0.02, kI = 0.00, kD = 0.000, kF = 0.00;
-        public Lift(HardwareMap hardwareMap, Telemetry telemetry, @Nullable DoubleSupplier manualPowerController) {
+        public Lift(HardwareMap hardwareMap, Telemetry telemetry) {
             Lift.target = Position.CUSTOM;
 
             left = new MotorEx(hardwareMap, "extension2", Motor.GoBILDA.RPM_435);
@@ -201,7 +186,6 @@ public class Arm implements Subsystem {
 
             feedbackController = new PIDFController(kP, kI, kD, kF);
 
-            this.manual = manualPowerController;
             this.telemetry = telemetry;
         }
 
@@ -213,21 +197,8 @@ public class Arm implements Subsystem {
 
             final int current = getCurrentPosition();
 
-            switch (target) { // OVERRIDES
-                case MANUAL:
-                    final double gamepad = manual.getAsDouble();
-                    targetTicks = Math.max(
-                            Position.ZERO.height,
-                            Math.min(
-                                    Position.MAX.height,
-                                    lastTargetTicks + ((int) Math.round(gamepad * liftTickSpeed))
-                            )
-                    );
-                    lastTargetTicks = targetTicks;
-                    break;
-                case CUSTOM:
+            if (target == Position.CUSTOM) {
                     targetTicks = customHeight;
-                    break;
             }
 
             // the numbers below can be different, likely should be eliminated if not worried about a "slam"
@@ -248,9 +219,6 @@ public class Arm implements Subsystem {
         }
 
         public void setTargetPosition(Position position) {
-            if (manual == null && position == Position.MANUAL) {
-                throw new IllegalStateException("can't set to manual mode, no manual supplier given");
-            }
             lastTargetTicks = Lift.target.height;
             Lift.target = position;
         }
