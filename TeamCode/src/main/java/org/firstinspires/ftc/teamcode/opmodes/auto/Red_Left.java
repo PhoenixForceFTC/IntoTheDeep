@@ -78,8 +78,7 @@ public class Red_Left extends AutoOpMode {
 
         turn(60);
         goTo(INT3);
-        turn(-60);
-        turn(25);
+        turn(-85);
         //sleepTools(500);
 
         //arm.setTargetAngle(Arm.Position.DUMPING);
