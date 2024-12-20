@@ -27,25 +27,20 @@ public class Red_Right extends AutoOpMode {
     @Override
     public void runOpMode() {
         setup(START);
-        claw.on();
-        claw.update();
-
+        //claw.on();
+        //claw.update();
         goTo(SCORE);
-
         arm.setTargetAngle(Arm.Position.DUMPING);
         arm.setExtensionPosition(Arm.Lift.Position.MAX);
         sleepTools(2000);
-        claw.off();
-        claw.update();
+        //claw.off();
+        //claw.update();
         sleepTools(500);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         sleepTools(1500);
         arm.setTargetAngle(Arm.Position.HOME);
-
-
         goTo(INT);
         goTo(INT2);
-
         goTo(ASCENT);
     }
 
