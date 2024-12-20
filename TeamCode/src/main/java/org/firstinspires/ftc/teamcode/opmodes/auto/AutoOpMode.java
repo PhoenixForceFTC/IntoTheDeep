@@ -28,7 +28,7 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     public PinpointDrive drive;
     public Arm arm;
-    public ToggleablePositionServo claw;
+    //public ToggleablePositionServo claw;
     public Speed speed = Speed.FAST;
 
     private static final TranslationalVelConstraint accelConstraint =
@@ -85,7 +85,7 @@ public abstract class AutoOpMode extends LinearOpMode {
         this.arm = new Arm(hardwareMap, this.telemetry);
         arm.setTargetAngle(Arm.Position.HOME);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
-        this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", false);
+        //this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", false);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
         }
@@ -111,7 +111,7 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     void sleepTools(long ms) {
         runForTime(ms, () -> {
-            arm.update();
+            //arm.update();
         });
     }
 

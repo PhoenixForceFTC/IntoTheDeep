@@ -33,25 +33,25 @@ public class Red_Left extends AutoOpMode {
     @Override
     public void runOpMode() {
         setup(START);
-        claw.on();
-        claw.update();
+        //claw.on();
+        //claw.update();
         sleepTools(500);
         goTo(INT);
         turn(45);
         sleepTools(500);
 
-        arm.setTargetAngle(Arm.Position.DUMPING);
-        arm.setExtensionPosition(Arm.Lift.Position.MAX);
+        //arm.setTargetAngle(Arm.Position.DUMPING);
+        //arm.setExtensionPosition(Arm.Lift.Position.MAX);
         sleepTools(2000);
-        claw.off();
-        claw.update();
+        //claw.off();
+        //claw.update();
         sleepTools(500);
-        claw.on();
-        claw.update();
+        //claw.on();
+        //claw.update();
         sleepTools(100);
-        arm.setTargetAngle(Arm.Position.HOME);
+        //arm.setTargetAngle(Arm.Position.HOME);
         sleepTools(500);
-        arm.setExtensionPosition(Arm.Lift.Position.ZERO);
+        //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         sleepTools(1500);
 
         turn(135);
@@ -61,16 +61,16 @@ public class Red_Left extends AutoOpMode {
         turn(45);
         sleepTools(500);
 
-        arm.setTargetAngle(Arm.Position.DUMPING);
-        arm.setExtensionPosition(Arm.Lift.Position.MAX);
+        //.setTargetAngle(Arm.Position.DUMPING);
+        //arm.setExtensionPosition(Arm.Lift.Position.MAX);
         sleepTools(2000);
-        claw.off();
-        claw.update();
+        //claw.off();
+        //claw.update();
         sleepTools(500);
-        claw.on();
-        claw.update();
+        //claw.on();
+        //claw.update();
         sleepTools(100);
-        arm.setTargetAngle(Arm.Position.HOME);
+        //arm.setTargetAngle(Arm.Position.HOME);
         sleepTools(500);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         sleepTools(1500);
@@ -82,18 +82,18 @@ public class Red_Left extends AutoOpMode {
         turn(45);
         sleepTools(500);
 
-        arm.setTargetAngle(Arm.Position.DUMPING);
-        arm.setExtensionPosition(Arm.Lift.Position.MAX);
+        //arm.setTargetAngle(Arm.Position.DUMPING);
+        //arm.setExtensionPosition(Arm.Lift.Position.MAX);
         sleepTools(2000);
-        claw.off();
-        claw.update();
+        //claw.off();
+        //claw.update();
         sleepTools(500);
-        claw.on();
-        claw.update();
+        //claw.on();
+        //claw.update();
         sleepTools(100);
-        arm.setTargetAngle(Arm.Position.HOME);
+        //arm.setTargetAngle(Arm.Position.HOME);
         sleepTools(500);
-        arm.setExtensionPosition(Arm.Lift.Position.ZERO);
+        //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         sleepTools(1500);
 
 
@@ -102,10 +102,10 @@ public class Red_Left extends AutoOpMode {
 
         goTo(INT5);
         goTo(ASCENT);
-        Arm.customAngle = 140;
-        arm.setTargetAngle(Arm.Position.CUSTOM);
+        //Arm.customAngle = 140;
+        //arm.setTargetAngle(Arm.Position.CUSTOM);
         sleepTools(3000);
-        Arm.lastAutoAngle = arm.getCurrentAngle();
+        //Arm.lastAutoAngle = arm.getCurrentAngle();
     }
 
 }
