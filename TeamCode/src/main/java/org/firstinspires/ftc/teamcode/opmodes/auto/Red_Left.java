@@ -19,13 +19,13 @@ public class Red_Left extends AutoOpMode {
     public static Position START = new Position(36, -66.25, 90);
     public static Position INT = new Position(24, -36, 0);
     public static Position SCORE = new Position(0, -36, 90);
-    public static Position INT2 = new Position(34, -36, 90);
+    public static Position INT2 = new Position(34, -36, 0);
 
     public static Position INT3 = new Position(44, -36, 0);
 
 
     public static Position INT5 = new Position(50, -12, 135);
-    public static Position ASCENT = new Position(30, -12, 135);
+    public static Position ASCENT = new Position(24, -12, 135);
 
 
 
@@ -57,8 +57,9 @@ public class Red_Left extends AutoOpMode {
         //sleepTools(500);
         //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         //sleepTools(500);
-        turn(60);
+        turn(35);
         goTo(INT2);
+        turn(25);
         turn(-60);
         //sleepTools(500);
 
@@ -76,9 +77,9 @@ public class Red_Left extends AutoOpMode {
         //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         //sleepTools(500);
 
-        turn(60);
+        turn(35);
         goTo(INT3);
-        turn(-85);
+        turn(-60);
         //sleepTools(500);
 
         //arm.setTargetAngle(Arm.Position.DUMPING);
