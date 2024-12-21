@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 @Config
@@ -14,8 +15,7 @@ public class Tooling implements Subsystem {
     final GamepadEx driverGamepad, toolGamepad;
   //  final Intake intake;
     final MultiAxisClawAssembly multiAxisClawAssembly;
-
-            ;
+    private Thread resetThread ;
     public static int extensionIncreasePerLoop = 17;
     public static int LOCKOUT = 100;
     public static int TARGET_SAMPLE_HEIGHT = 1000;
@@ -32,6 +32,42 @@ public class Tooling implements Subsystem {
     public void update() {
         driverGamepad.readButtons();
         toolGamepad.readButtons();
+        if (toolGamepad.wasJustReleased(GamepadKeys.Button.BACK)) {
+            if (resetThread != null) {
+                resetThread.interrupt();
+                arm.stopPulling();
+                arm.stopPullingArm();
+                arm.resetArmMotors();
+                arm.resetExtensionMotors();
+                resetThread = null;
+            } else {
+                resetThread = new Thread(() -> {
+                    multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.INIT);
+                    arm.pull();
+                    try {
+                        while (arm.getExtensionCurrent() < 6) {
+                            Thread.sleep(50);
+                        }
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    arm.stopPulling();
+                    arm.resetExtensionMotors();
+                    arm.pullArm();
+                    try {
+                        while (arm.getArmCurrent() < 6) {
+                            Thread.sleep(50);
+                        }
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    arm.stopPullingArm();
+                    arm.resetArmMotors();
+
+                });
+                resetThread.start();
+            }
+        }
         if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             Arm.extensionPosition = 0;
             new Thread(() -> {

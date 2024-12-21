@@ -15,6 +15,7 @@ import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 import java.util.ArrayList;
@@ -26,11 +27,12 @@ import java.util.ArrayList;
 public class Arm implements Subsystem {
     public static double MIN_ANGLE = -25, MAX_ANGLE = 105;
     public static double lastAutoAngle = 0;
+    private boolean pullingArm = false;
     public enum Position {
         HOME(0),
-        GRABBING(-9), // changed from -30
+        GRABBING(-7), // changed from -30
         DUMPING(95),
-        SPECIMEN_PICKUP(23),
+        SPECIMEN_PICKUP(17),
         CUSTOM(-1);
 
         public final double angle;
@@ -39,6 +41,7 @@ public class Arm implements Subsystem {
             this.angle = degrees;
         }
     }
+
     void resetArmPosition() {
         armMotors.get(0).stopAndResetEncoder();
     }
@@ -85,27 +88,29 @@ public class Arm implements Subsystem {
     public void update() {
         Arm.customAngle = MathUtils.clamp(Arm.customAngle, Arm.MIN_ANGLE, Arm.MAX_ANGLE);
         feedbackController.setPID(kP, kI, kD);
-        armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
+        if (!pullingArm) {
+            armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
 
-        double targetAngle = Arm.target.angle;
-        extension.setTargetPosition(Arm.extensionPosition);
+            double targetAngle = Arm.target.angle;
+            extension.setTargetPosition(Arm.extensionPosition);
 
-        if (Arm.target == Position.CUSTOM) {
-            targetAngle = customAngle;
+            if (Arm.target == Position.CUSTOM) {
+                targetAngle = customAngle;
+            }
+
+            double currentDegrees = getCurrentAngle();
+            double targetRadians = Math.toRadians(targetAngle);
+            final double output = feedbackController.calculate(currentDegrees, targetAngle) +
+                    armFeedforwardController.calculate(
+                            targetRadians, 0
+                    ) + (kFS * extension.getTargetPosition());
+            telemetry.addData("target arm angle", targetAngle);
+            telemetry.addData("current arm angle", currentDegrees);
+            telemetry.addData("extensionTicks", extension.getCurrentPosition());
+            telemetry.addData("extensionTarget", extension.getTargetPosition());
+
+            setPower(MathUtils.clamp(output, -1, 1));
         }
-
-        double currentDegrees = getCurrentAngle();
-        double targetRadians = Math.toRadians(targetAngle);
-        final double output = feedbackController.calculate(currentDegrees, targetAngle) +
-                                armFeedforwardController.calculate(
-                                        targetRadians, 0
-                                )+ (kFS * extension.getTargetPosition());
-        telemetry.addData("target arm angle", targetAngle);
-        telemetry.addData("current arm angle", currentDegrees);
-        telemetry.addData("extensionTicks", extension.getCurrentPosition());
-        telemetry.addData("extensionTarget", extension.getTargetPosition());
-
-        setPower(MathUtils.clamp(output, -1, 1));
         extension.update();
     }
 
@@ -142,6 +147,15 @@ public class Arm implements Subsystem {
         return extension.getCurrentPosition();
     }
 
+    public void resetArmMotors() {
+        armMotors.forEach(m -> m.set(0));
+        armMotors.forEach(Motor::stopAndResetEncoder);
+    }
+
+    public void resetExtensionMotors(){
+        extension.motors.forEach(m -> m.set(0));
+        extension.motors.forEach(Motor::stopAndResetEncoder);
+    }
 
     @Config
     public static class Lift implements Subsystem {
@@ -172,6 +186,7 @@ public class Arm implements Subsystem {
 
         private int lastTargetTicks = 0;
         public static double kP = 0.02, kI = 0.00, kD = 0.000, kF = 0.00;
+
         public Lift(HardwareMap hardwareMap, Telemetry telemetry) {
             Lift.target = Position.CUSTOM;
 
@@ -184,7 +199,7 @@ public class Arm implements Subsystem {
             motors = listFromParams(left, right);
             motors.forEach(m -> {
                 m.stopAndResetEncoder();
-                m.setDistancePerPulse(10/42D);
+                m.setDistancePerPulse(10 / 42D);
             });
 
             feedbackController = new PIDFController(kP, kI, kD, kF);
@@ -257,7 +272,26 @@ public class Arm implements Subsystem {
         extension.pull();
     }
 
+    public void pullArm() {
+        pullingArm = true;
+        armMotors.forEach(m -> m.set(-0.5));
+    }
+
+    public void stopPullingArm() {
+        Arm.target = Position.CUSTOM;
+        Arm.customAngle = getCurrentAngle();
+        pullingArm = false;
+    }
+
     public void stopPulling() {
         extension.stopPulling();
+    }
+
+    public double getExtensionCurrent() {
+        return extension.motors.get(0).motorEx.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getArmCurrent() {
+        return armMotors.get(0).motorEx.getCurrent(CurrentUnit.AMPS);
     }
 }
