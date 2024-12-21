@@ -11,7 +11,8 @@ public class MultiAxisClawAssembly extends ToggleablePositionServo {
         SUBMERSIBLE_PICKUP_HORIZONTAL(.835, .875),
         SUBMERSIBLE_PICKUP_VERTICAL(.853, .54),
         WALL_SPECIMEN_PICKUP(.55, .854),
-        DUMP_AND_WALL_REMOVAL_AND_HOME(.28, .21);
+        DUMP_AND_WALL_REMOVAL_AND_HOME(.28, .21),
+        INIT(.22, SUBMERSIBLE_PICKUP_HORIZONTAL.roll);
 
         public final double pitch;
         public final double roll;
@@ -32,7 +33,8 @@ public class MultiAxisClawAssembly extends ToggleablePositionServo {
         super(hardwareMap, .14, .42, "CLAW", false);
         pitch = hardwareMap.get(Servo.class, "PITCH");
         roll = hardwareMap.get(Servo.class, "ROLL");
-        this.position = Position.DUMP_AND_WALL_REMOVAL_AND_HOME;
+        this.position = Position.INIT;
+        setServos();
     }
     @Override
     public void update() {

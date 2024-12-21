@@ -18,6 +18,7 @@ public class Tooling implements Subsystem {
             ;
     public static int extensionIncreasePerLoop = 17;
     public static int LOCKOUT = 100;
+    public static int TARGET_SAMPLE_HEIGHT = 1000;
     public static double armIncreasePerLoop = 1.7D;
     public Tooling(HardwareMap hardwareMap, Telemetry telemetry, GamepadEx driverGamepad, GamepadEx toolGamepad) {
         this.arm = new Arm(hardwareMap, telemetry);
@@ -32,14 +33,41 @@ public class Tooling implements Subsystem {
         driverGamepad.readButtons();
         toolGamepad.readButtons();
         if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
-            arm.setTargetAngle(Arm.Position.GRABBING);
-        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT)) {
-            arm.setTargetAngle(Arm.Position.SPECIMEN_PICKUP);
-        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
-            arm.setTargetAngle(Arm.Position.HOME);
             Arm.extensionPosition = 0;
+            new Thread(() -> {
+                if (this.arm.getCurrentExtensionPosition() > 300) {
+                    try {
+                        Thread.sleep(750);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                arm.setTargetAngle(Arm.Position.GRABBING);
+            }).start();
+            if (multiAxisClawAssembly.getPosition() != MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_VERTICAL) {
+                multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL);
+            }
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT)) {
+            Arm.extensionPosition = 0;
+            arm.setTargetAngle(Arm.Position.SPECIMEN_PICKUP);
+            multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.WALL_SPECIMEN_PICKUP);
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
+            new Thread(() -> {
+                if (this.arm.getCurrentExtensionPosition() > 300) {
+                    try {
+                        Thread.sleep(750);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                arm.setTargetAngle(Arm.Position.HOME);
+            }).start();
+            Arm.extensionPosition = 0;
+            multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.WALL_SPECIMEN_PICKUP);
         } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
             arm.setTargetAngle(Arm.Position.DUMPING);
+            Arm.extensionPosition = Tooling.TARGET_SAMPLE_HEIGHT;
+            multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.DUMP_AND_WALL_REMOVAL_AND_HOME);
         }
 
         final double rightTrigger = toolGamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);

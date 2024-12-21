@@ -24,11 +24,11 @@ import java.util.ArrayList;
 
 @Config
 public class Arm implements Subsystem {
-    public static double MIN_ANGLE = -25, MAX_ANGLE = 150;
+    public static double MIN_ANGLE = -25, MAX_ANGLE = 105;
     public static double lastAutoAngle = 0;
     public enum Position {
         HOME(0),
-        GRABBING(-5), // changed from -30
+        GRABBING(-9), // changed from -30
         DUMPING(95),
         SPECIMEN_PICKUP(23),
         CUSTOM(-1);
@@ -51,7 +51,7 @@ public class Arm implements Subsystem {
     public static Position target = Position.CUSTOM;
     public static double customAngle = 0D;
 
-    public static double kP = 0.06, kI = 0, kD = 0.0038, kG = 0.16, kF = 0.0002, kFS = 0.00014;
+    public static double kP = 0.06, kI = 0, kD = 0.0038, kG = 0.013, kF = 0.0002, kFS = 0.00014;
 
     private final Telemetry telemetry;
     private final Lift extension;
@@ -95,15 +95,16 @@ public class Arm implements Subsystem {
         }
 
         double currentDegrees = getCurrentAngle();
-        double currentRadians = Math.toRadians(currentDegrees);
+        double targetRadians = Math.toRadians(targetAngle);
         final double output = feedbackController.calculate(currentDegrees, targetAngle) +
                                 armFeedforwardController.calculate(
-                                        currentRadians, 0
+                                        targetRadians, 0
                                 )+ (kFS * extension.getTargetPosition());
         telemetry.addData("target arm angle", targetAngle);
         telemetry.addData("current arm angle", currentDegrees);
         telemetry.addData("extensionTicks", extension.getCurrentPosition());
         telemetry.addData("extensionTarget", extension.getTargetPosition());
+
         setPower(MathUtils.clamp(output, -1, 1));
         extension.update();
     }
@@ -209,6 +210,7 @@ public class Arm implements Subsystem {
 
                 telemetry.addData("current extension", current);
                 telemetry.addData("target lift", targetTicks);
+                telemetry.addData("extension power", feedbackOutput);
 
                 motors.forEach(m -> m.set(MathUtils.clamp(feedbackOutput, -1, 1)));
             }
