@@ -45,8 +45,8 @@ public class Tooling implements Subsystem {
                     multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.INIT);
                     arm.pull();
                     try {
-                        while (arm.getExtensionCurrent() < 6) {
-                            Thread.sleep(50);
+                        while (arm.getExtensionCurrent() < 4) {
+                            Thread.sleep(20);
                         }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
@@ -55,7 +55,7 @@ public class Tooling implements Subsystem {
                     arm.resetExtensionMotors();
                     arm.pullArm();
                     try {
-                        while (arm.getArmCurrent() < 6) {
+                        while (arm.getArmCurrent() < 4) {
                             Thread.sleep(50);
                         }
                     } catch (InterruptedException e) {

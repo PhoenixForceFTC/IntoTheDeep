@@ -200,6 +200,7 @@ public class Arm implements Subsystem {
             motors.forEach(m -> {
                 m.stopAndResetEncoder();
                 m.setDistancePerPulse(10 / 42D);
+                m.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
             });
 
             feedbackController = new PIDFController(kP, kI, kD, kF);
@@ -269,6 +270,7 @@ public class Arm implements Subsystem {
     }
 
     public void pull() {
+        pullingArm = true;
         extension.pull();
     }
 
@@ -284,6 +286,7 @@ public class Arm implements Subsystem {
     }
 
     public void stopPulling() {
+        pullingArm = false;
         extension.stopPulling();
     }
 
