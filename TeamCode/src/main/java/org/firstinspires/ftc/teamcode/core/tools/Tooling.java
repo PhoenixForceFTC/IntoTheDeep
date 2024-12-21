@@ -31,13 +31,15 @@ public class Tooling implements Subsystem {
     public void update() {
         driverGamepad.readButtons();
         toolGamepad.readButtons();
-        if (driverGamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
+        if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             arm.setTargetAngle(Arm.Position.GRABBING);
-        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
-            arm.setTargetAngle(Arm.Position.SPECIMEN_PICKUP);
         } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT)) {
+            arm.setTargetAngle(Arm.Position.SPECIMEN_PICKUP);
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
             arm.setTargetAngle(Arm.Position.HOME);
             Arm.extensionPosition = 0;
+        } else if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
+            arm.setTargetAngle(Arm.Position.DUMPING);
         }
 
         final double rightTrigger = toolGamepad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);

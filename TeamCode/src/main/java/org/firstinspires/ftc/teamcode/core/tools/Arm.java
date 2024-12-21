@@ -5,8 +5,6 @@ package org.firstinspires.ftc.teamcode.core.tools;
 
 import static org.firstinspires.ftc.teamcode.util.Utilities.listFromParams;
 
-import androidx.annotation.Nullable;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
@@ -20,20 +18,19 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.core.Subsystem;
 
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.function.DoubleSupplier;
 
 // ADDITIONAL MOTOR
 
 
 @Config
 public class Arm implements Subsystem {
+    public static double MIN_ANGLE = -25, MAX_ANGLE = 150;
     public static double lastAutoAngle = 0;
     public enum Position {
         HOME(0),
-        GRABBING(-15), // changed from -30
+        GRABBING(-5), // changed from -30
         DUMPING(95),
-        SPECIMEN_PICKUP(20),
+        SPECIMEN_PICKUP(23),
         CUSTOM(-1);
 
         public final double angle;
@@ -86,13 +83,14 @@ public class Arm implements Subsystem {
 
     @Override
     public void update() {
+        Arm.customAngle = MathUtils.clamp(Arm.customAngle, Arm.MIN_ANGLE, Arm.MAX_ANGLE);
         feedbackController.setPID(kP, kI, kD);
         armFeedforwardController = new ArmFeedforward(0, kG + kF * extension.getTargetPosition(), 0, 0);
 
-        double targetAngle = target.angle;
+        double targetAngle = Arm.target.angle;
         extension.setTargetPosition(Arm.extensionPosition);
 
-        if (target == Position.CUSTOM) {
+        if (Arm.target == Position.CUSTOM) {
             targetAngle = customAngle;
         }
 
@@ -111,7 +109,7 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentAngle() {
-        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 20;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 + Arm.MIN_ANGLE;
     }
 
     public double getTargetAngle() {
@@ -123,7 +121,7 @@ public class Arm implements Subsystem {
     }
 
     public void setTargetAngle(Position position) {
-        Arm.target = position;
+        Arm.customAngle = position.angle;
     }
 
     public void setExtensionPosition(int position) {

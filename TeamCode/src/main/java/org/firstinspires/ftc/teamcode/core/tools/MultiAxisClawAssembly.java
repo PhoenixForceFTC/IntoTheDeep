@@ -5,10 +5,6 @@ import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import dev.frozenmilk.util.units.angle.Angle;
-import dev.frozenmilk.util.units.angle.AngleUnits;
-import dev.frozenmilk.util.units.angle.Angles;
-
 @Config
 public class MultiAxisClawAssembly extends ToggleablePositionServo {
     public enum Position {
