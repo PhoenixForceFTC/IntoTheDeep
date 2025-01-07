@@ -4,16 +4,19 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.core.Subsystem;
+
+import java.util.Timer;
 
 @Config
 public class Tooling implements Subsystem {
     final Arm arm;
     final GamepadEx driverGamepad, toolGamepad;
   //  final Intake intake;
+    final ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     final MultiAxisClawAssembly multiAxisClawAssembly;
     private Thread resetThread ;
     public static int extensionIncreasePerLoop = 17;
@@ -67,6 +70,10 @@ public class Tooling implements Subsystem {
                 });
                 resetThread.start();
             }
+        }
+        if (toolGamepad.wasJustReleased(GamepadKeys.Button.LEFT_STICK_BUTTON)) {
+            Arm.MIN_ANGLE = -1e99;
+            Arm.MAX_ANGLE = 1e99;
         }
         if (toolGamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             Arm.extensionPosition = 0;
@@ -141,8 +148,11 @@ public class Tooling implements Subsystem {
 
         if (driverGamepad.wasJustPressed(GamepadKeys.Button.BACK)) {
             arm.pull();
+            timer.reset();
         } else if (driverGamepad.wasJustReleased(GamepadKeys.Button.BACK)) {
-            arm.stopPulling();
+            if (timer.time() < 1000) {
+                arm.stopPulling();
+            }
         }
 
         arm.update();

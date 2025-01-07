@@ -30,7 +30,7 @@ public class MultiAxisClawAssembly extends ToggleablePositionServo {
     private Position position;
     // add setpoint variables
     public MultiAxisClawAssembly(HardwareMap hardwareMap) {
-        super(hardwareMap, .14, .42, "CLAW", false);
+        super(hardwareMap, .14, .42, "CLAW", true);
         pitch = hardwareMap.get(Servo.class, "PITCH");
         roll = hardwareMap.get(Servo.class, "ROLL");
         this.position = Position.INIT;

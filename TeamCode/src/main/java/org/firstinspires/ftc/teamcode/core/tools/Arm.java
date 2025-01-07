@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 @Config
 public class Arm implements Subsystem {
+    public static boolean autoRan = false;
     public static double MIN_ANGLE = -25, MAX_ANGLE = 105;
     public static double lastAutoAngle = 0;
     private boolean pullingArm = false;
@@ -69,11 +70,13 @@ public class Arm implements Subsystem {
 
         MotorEx armMotor1 = new MotorEx(hardwareMap, "arm", Motor.GoBILDA.RPM_223);
         armMotor1.setInverted(true);
-        if (Math.abs(lastAutoAngle) < 1e-6) {
-            armMotor1.stopAndResetEncoder();
-        }
-
         armMotors.add(armMotor1);
+
+        if (!Arm.autoRan) {
+            armMotor1.stopAndResetEncoder();
+        } else {
+            Arm.customAngle = getCurrentAngle();
+        }
 
         feedbackController = new PIDController(kP, kI, kD);
         armFeedforwardController = new ArmFeedforward(0, kG, 0, 0);
@@ -115,7 +118,7 @@ public class Arm implements Subsystem {
     }
 
     public double getCurrentAngle() {
-        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 + Arm.MIN_ANGLE;
+        return armMotors.get(0).getCurrentPosition() / armMotors.get(0).getCPR() * 10D / 42D * 360 - 25;
     }
 
     public double getTargetAngle() {
@@ -198,7 +201,9 @@ public class Arm implements Subsystem {
 
             motors = listFromParams(left, right);
             motors.forEach(m -> {
-                m.stopAndResetEncoder();
+                if (!Arm.autoRan) {
+                    m.stopAndResetEncoder();
+                }
                 m.setDistancePerPulse(10 / 42D);
                 m.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
             });
