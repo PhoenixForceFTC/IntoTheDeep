@@ -52,7 +52,8 @@ public class PinpointDrive extends MecanumDrive {
 
         RR LOCALIZER NOTE: this is ticks per MILLIMETER, NOT inches per tick.
         This value should be more than one; the value for the Gobilda 4 Bar Pod is approximately 20.
-        To get this value from inPerTick, first convert the value to millimeters (multiply by 25.4)
+        To get this value from
+        , first convert the value to millimeters (multiply by 25.4)
         and then take its inverse (one over the value)
          */
         public double encoderResolution = GoBildaPinpointDriverRR.goBILDA_SWINGARM_POD;
