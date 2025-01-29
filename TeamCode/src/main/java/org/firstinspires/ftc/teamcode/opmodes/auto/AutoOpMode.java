@@ -15,24 +15,30 @@ import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-import org.firstinspires.ftc.teamcode.core.tools.Arm;
-import org.firstinspires.ftc.teamcode.core.tools.ToggleablePositionServo;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+
+//import org.firstinspires.ftc.teamcode.core.tools.ToggleablePositionServo;
+//import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import org.firstinspires.ftc.teamcode.core.tools.Arm;
+import org.firstinspires.ftc.teamcode.core.tools.MultiAxisClawAssembly;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+
 //next year use trajectory build upon initialiation
 public abstract class AutoOpMode extends LinearOpMode {
+    public MecanumDrive drivetrain;
+    public Arm arm;
+    public MultiAxisClawAssembly claw;
 
     public PinpointDrive drive;
-    public Arm arm;
     //public ToggleablePositionServo claw;
     public Speed speed = Speed.FAST;
 
     private static final TranslationalVelConstraint accelConstraint =
-            new TranslationalVelConstraint(100);
+            new TranslationalVelConstraint(200);
 
     // In inches per second
     private static final double VERY_SLOW_MAX_VEL = 3;
@@ -82,10 +88,13 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     public void setup(Position startPosition) {
         drive = new PinpointDrive(hardwareMap,startPosition.toPose2d());
-        this.arm = new Arm(hardwareMap, this.telemetry);
+        arm = new Arm(hardwareMap, telemetry);
+        claw = new MultiAxisClawAssembly(hardwareMap);
         arm.setTargetAngle(Arm.Position.HOME);
         arm.setExtensionPosition(Arm.Lift.Position.ZERO);
-        //this.claw = new ToggleablePositionServo(hardwareMap, .8, .2, "claw", false);
+        Arm.autoRan = true;
+        Arm.customAngle = Arm.Position.DUMPING.angle;
+        claw.setPosition(MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
         }
@@ -111,7 +120,8 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     void sleepTools(long ms) {
         runForTime(ms, () -> {
-            //arm.update();
+            arm.update();
+            claw.update();
         });
     }
 
@@ -162,7 +172,7 @@ public abstract class AutoOpMode extends LinearOpMode {
      */
     public void goTo(Position position) {
         Action traj = drive.actionBuilder(drive.pose)
-                .strafeTo(position.toVector2d(), getVelConstraint()/*, accelConstraint*/)
+                .strafeToSplineHeading(position.toVector2d(),Math.toRadians(position.HEADING) ,getVelConstraint()/*, accelConstraint*/)
                 .build();
 
         Actions.runBlocking(traj);
