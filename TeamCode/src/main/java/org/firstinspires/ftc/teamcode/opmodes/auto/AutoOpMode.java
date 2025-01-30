@@ -172,7 +172,7 @@ public abstract class AutoOpMode extends LinearOpMode {
      */
     public void goTo(Position position) {
         Action traj = drive.actionBuilder(drive.pose)
-                .strafeToSplineHeading(position.toVector2d(),Math.toRadians(position.HEADING) ,getVelConstraint()/*, accelConstraint*/)
+                .strafeToSplineHeading(position.toVector2d(), Math.toRadians(position.HEADING), new TranslationalVelConstraint(200)/*, accelConstraint*/)
                 .build();
 
         Actions.runBlocking(traj);

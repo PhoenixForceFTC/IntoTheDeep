@@ -21,8 +21,8 @@ public class SpecimenAutoRR extends AutoOpMode {
     public static Position BLOCK1DEPOSIT = new Position(46,-60,90);
     public static Position BLOCK2 = new Position(57,-10,90);
     public static Position BLOCK2DEPOSIT = new Position(57,-60,90);
-    public static Position BLOCK3 = new Position(62,-9,90);
-    public static Position BLOCK3DEPOSIT = new Position(62 ,-60,90);
+    public static Position BLOCK3 = new Position(65,-9,90);
+    public static Position BLOCK3DEPOSIT = new Position(65 ,-60,90);
 
 
 
