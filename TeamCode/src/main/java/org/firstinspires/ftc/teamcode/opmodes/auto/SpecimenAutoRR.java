@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Config
@@ -30,6 +33,8 @@ public class SpecimenAutoRR extends AutoOpMode {
     @Override
     public void runOpMode() {
         setSpeed(Speed.FAST);
+
+
         setup(START);
         goTo(INT1);
         goTo(INT2);
