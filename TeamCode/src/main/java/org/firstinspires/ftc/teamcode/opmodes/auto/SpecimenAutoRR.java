@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Config
 @Autonomous(group="!CompOpModes")
-public class SpecimenAutoRR extends AutoOpMode {
+public class SpecimenAutoRR extends AutoOpMode3deadwheel {
 
     //------------------------------------------------------------
     //--- Field Positions ---
