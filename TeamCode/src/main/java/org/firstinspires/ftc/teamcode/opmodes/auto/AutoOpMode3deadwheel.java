@@ -27,6 +27,7 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
     public MultiAxisClawAssembly claw;
 
     public MecanumDrive drive;
+    public MultiAxisClawAssembly multiAxisClawAssembly;
     //public ToggleablePositionServo claw;
     public Speed speed = Speed.FAST;
 
@@ -84,10 +85,11 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
         arm = new Arm(hardwareMap, telemetry);
         claw = new MultiAxisClawAssembly(hardwareMap);
         arm.setTargetAngle(Arm.Position.HOME);
-        arm.setExtensionPosition(Arm.Lift.Position.ZERO);
+        //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         Arm.autoRan = true;
         Arm.customAngle = Arm.Position.DUMPING.angle;
         claw.setPosition(MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL);
+        this.multiAxisClawAssembly = new MultiAxisClawAssembly(hardwareMap);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
         }
@@ -166,7 +168,7 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
     public void goTo(Position position) {
 
         Action traj = drive.actionBuilder(drive.localizer.getPose())
-                .splineToLinearHeading(position.toPose2d(), Math.toRadians(position.HEADING), new TranslationalVelConstraint(200)/*, accelConstraint*/)
+                .splineToLinearHeading(position.toPose2d(), Math.toRadians(position.HEADING), new TranslationalVelConstraint(500)/*, accelConstraint*/)
                 .build();
 
         Actions.runBlocking(traj);

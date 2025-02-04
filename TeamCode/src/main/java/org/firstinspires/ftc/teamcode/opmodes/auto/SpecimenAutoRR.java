@@ -6,6 +6,11 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+
+import org.firstinspires.ftc.teamcode.core.tools.Arm;
+import org.firstinspires.ftc.teamcode.core.tools.MultiAxisClawAssembly;
+import org.firstinspires.ftc.teamcode.core.tools.Tooling;
+
 @Config
 @Autonomous(group="!CompOpModes")
 public class SpecimenAutoRR extends AutoOpMode3deadwheel {
@@ -18,6 +23,8 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
 
     // robot is 15 inches by 11 and a half inches
     public static Position START = new Position(16.5,-67,90);
+    public static Position SCORE1 = new Position(16.5, -63,90);
+    public static Position SCORE2 = new Position(0, -67,90);
     public static Position INT1 = new Position(34,-60,90);
     public static Position INT2 = new Position(36,-12,90);
     public static Position BLOCK1 = new Position(46,-12,90);
@@ -32,12 +39,20 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
     
     @Override
     public void runOpMode() {
+
         setSpeed(Speed.FAST);
 
 
         setup(START);
-        goTo(INT1);
-        goTo(INT2);
+
+        goTo(SCORE1);
+
+        arm.setTargetAngle(Arm.Position.DUMPING);
+        arm.extensionPosition = Tooling.TARGET_SAMPLE_HEIGHT;
+        multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.DUMP_AND_WALL_REMOVAL_AND_HOME);
+        sleepTools(5000);
+        goTo(SCORE2);
+        arm.extensionPosition = 700;
         goTo(BLOCK1);
         goTo(BLOCK1DEPOSIT);
         goTo(BLOCK1);
