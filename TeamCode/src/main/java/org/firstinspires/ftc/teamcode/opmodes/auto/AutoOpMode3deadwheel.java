@@ -168,7 +168,7 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
     public void goTo(Position position) {
 
         Action traj = drive.actionBuilder(drive.localizer.getPose())
-                .splineToLinearHeading(position.toPose2d(), Math.toRadians(position.HEADING), new TranslationalVelConstraint(500)/*, accelConstraint*/)
+                .strafeToSplineHeading(position.toVector2d(),Math.toRadians(position.HEADING), new TranslationalVelConstraint(200)/*, accelConstraint*/)
                 .build();
 
         Actions.runBlocking(traj);
