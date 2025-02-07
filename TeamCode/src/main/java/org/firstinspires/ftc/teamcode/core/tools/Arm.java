@@ -111,7 +111,6 @@ public class Arm implements Subsystem {
             telemetry.addData("current arm angle", currentDegrees);
             telemetry.addData("extensionTicks", extension.getCurrentPosition());
             telemetry.addData("extensionTarget", extension.getTargetPosition());
-
             setPower(MathUtils.clamp(output, -1, 1));
         }
         extension.update();

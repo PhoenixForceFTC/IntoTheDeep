@@ -84,16 +84,15 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap,startPosition.toPose2d());
         arm = new Arm(hardwareMap, telemetry);
         claw = new MultiAxisClawAssembly(hardwareMap);
-        arm.setTargetAngle(Arm.Position.HOME);
+        ;
         //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
         Arm.autoRan = true;
-        Arm.customAngle = Arm.Position.DUMPING.angle;
+        Arm.customAngle = 0;
         claw.setPosition(MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL);
         this.multiAxisClawAssembly = new MultiAxisClawAssembly(hardwareMap);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
         }
-
         if (isStopRequested()) return;
     }
 
@@ -117,6 +116,7 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
         runForTime(ms, () -> {
             arm.update();
             claw.update();
+            telemetry.update();
         });
     }
 
@@ -168,7 +168,7 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
     public void goTo(Position position) {
 
         Action traj = drive.actionBuilder(drive.localizer.getPose())
-                .strafeToSplineHeading(position.toVector2d(),Math.toRadians(position.HEADING), new TranslationalVelConstraint(200)/*, accelConstraint*/)
+                .strafeToSplineHeading(position.toVector2d(),Math.toRadians(position.HEADING), new TranslationalVelConstraint(500)/*, accelConstraint*/)
                 .build();
 
         Actions.runBlocking(traj);
