@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 
@@ -11,6 +14,8 @@ import org.firstinspires.ftc.teamcode.core.tools.Arm;
 import org.firstinspires.ftc.teamcode.core.tools.MultiAxisClawAssembly;
 import org.firstinspires.ftc.teamcode.core.tools.Tooling;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoOpMode3deadwheel;
+
+import java.util.concurrent.TimeUnit;
 
 @Config
 @Autonomous(group="!CompOpModes")
@@ -26,7 +31,7 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
     public static Position START = new Position(7.5,-67,90);
     public static Position START2 = new Position(7.5,-63,90);
     public static Position SCORE1 = new Position(0, -63,90);
-    public static Position SCORE2 = new Position(0, -40,90);
+    public static Position SCORE2 = new Position(0, -39,90);
     public static Position SCORE3 = new Position(0, -48,90);
     public static Position INT1 = new Position(34,-48,90);
     public static Position INT2 = new Position(36,-12,90);
@@ -39,7 +44,14 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
     public static Position SCORE4 = new Position(0, -34,270);
 
 
-
+    private void sleepTools2(int ms) {
+        Timing.Timer timer = new Timing.Timer(ms, TimeUnit.MILLISECONDS);
+        timer.start();
+        while (!timer.done() && !isStopRequested()) {
+            arm.update();
+            claw.update();
+        }
+    }
 
     @Override
     public void runOpMode() {
@@ -48,24 +60,26 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
 
         Arm.autoRan=false;
         setup(START);
-        Arm.customAngle = 0;
-        Arm.extensionPosition = 0;
         goTo(START2);
         goTo(SCORE1);
-        Arm.customAngle = 0;
-        Arm.extensionPosition = 0;
-        Arm.extensionPosition = 1300;
-        sleepTools(1000);
-        Arm.customAngle = 70;
-        sleepTools(1000);
+        sleepTools2(1000);
+        Arm.customAngle = Arm.Position.DUMPING.angle;
         claw.setPosition(MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL);
-        Arm.customAngle = 67;
-        sleepTools(1000);
+        sleepTools2(700);
+
+
+        Arm.extensionPosition = 1100;
+        sleepTools2(2000);
+
         goTo(SCORE2);
+        sleepTools2(2000);
+
+        Arm.customAngle = 67;
+        sleepTools2(700);
         Arm.extensionPosition = 0;
-        sleepTools(1000);
+        sleepTools2(300);
         claw.off();
-        sleepTools(1000);
+        sleepTools2(1000);
         goTo(SCORE3);
         claw.off();
         goTo(INT1);

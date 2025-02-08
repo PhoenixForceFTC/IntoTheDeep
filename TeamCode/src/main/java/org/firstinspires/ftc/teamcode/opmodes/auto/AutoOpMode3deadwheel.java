@@ -84,16 +84,20 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap,startPosition.toPose2d());
         arm = new Arm(hardwareMap, telemetry);
         claw = new MultiAxisClawAssembly(hardwareMap);
-        ;
         //arm.setExtensionPosition(Arm.Lift.Position.ZERO);
-        Arm.autoRan = true;
-        Arm.customAngle = 0;
+
         claw.setPosition(MultiAxisClawAssembly.Position.SUBMERSIBLE_PICKUP_HORIZONTAL);
         this.multiAxisClawAssembly = new MultiAxisClawAssembly(hardwareMap);
         while(!isStarted() && !isStopRequested()){
 //            camera.detection();
         }
         if (isStopRequested()) return;
+        Arm.autoRan = true;
+        Arm.customAngle = 0;
+        arm.stopPulling();
+        arm.stopPullingArm();
+        arm.resetArmMotors();
+        arm.resetExtensionMotors();
     }
 
     public void setSpeed(Speed speed) {
