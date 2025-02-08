@@ -92,12 +92,12 @@ public abstract class AutoOpMode3deadwheel extends LinearOpMode {
 //            camera.detection();
         }
         if (isStopRequested()) return;
-        Arm.autoRan = true;
         Arm.customAngle = 0;
         arm.stopPulling();
         arm.stopPullingArm();
         arm.resetArmMotors();
         arm.resetExtensionMotors();
+        Arm.autoRan = true;
     }
 
     public void setSpeed(Speed speed) {

@@ -8,8 +8,6 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.util.Timing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-
 import org.firstinspires.ftc.teamcode.core.tools.Arm;
 import org.firstinspires.ftc.teamcode.core.tools.MultiAxisClawAssembly;
 import org.firstinspires.ftc.teamcode.core.tools.Tooling;
@@ -33,14 +31,14 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
     public static Position SCORE1 = new Position(0, -63,90);
     public static Position SCORE2 = new Position(0, -39,90);
     public static Position SCORE3 = new Position(0, -48,90);
-    public static Position INT1 = new Position(34,-48,90);
-    public static Position INT2 = new Position(36,-12,90);
+    public static Position INT1 = new Position(38,-48,90);
+    public static Position INT2 = new Position(38,-12,90);
     public static Position BLOCK1 = new Position(46,-12,90);
     public static Position BLOCK1DEPOSIT = new Position(46,-60,90);
     public static Position BLOCK2 = new Position(57,-10,90);
     public static Position BLOCK2DEPOSIT = new Position(57,-60,90);
     public static Position GRAB1 = new Position( 46,-36,270);
-    public static Position GRAB2 = new Position(36,-48,270);
+    public static Position GRAB2 = new Position(36,-40,270);
     public static Position SCORE4 = new Position(0, -34,270);
 
 
@@ -77,15 +75,14 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
         Arm.customAngle = 67;
         sleepTools2(700);
         Arm.extensionPosition = 0;
-        sleepTools2(300);
+        sleepTools2(700);
         claw.off();
-        sleepTools2(1000);
+        sleepTools2(900);
         goTo(SCORE3);
         claw.off();
         goTo(INT1);
         goTo(INT2);
         claw.setPosition(MultiAxisClawAssembly.Position.WALL_SPECIMEN_PICKUP);
-        arm.update();
         goTo(BLOCK1);
         goTo(BLOCK1DEPOSIT);
         Action traj2 = drive.actionBuilder(drive.localizer.getPose())
@@ -103,9 +100,15 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
                 .build();
 
         Actions.runBlocking(traj3);
-        arm.setTargetAngle(Arm.Position.HOME);
+
         claw.setPosition(MultiAxisClawAssembly.Position.WALL_SPECIMEN_PICKUP);
+        arm.setTargetAngle(Arm.Position.HOME);
+        Arm.extensionPosition = 0;
+        sleepTools2(500);
         goTo(SCORE4);
+        arm.setTargetAngle(Arm.Position.DUMPING);
+        Arm.extensionPosition = Tooling.TARGET_SAMPLE_HEIGHT;
+        multiAxisClawAssembly.setPosition(MultiAxisClawAssembly.Position.DUMP_AND_WALL_REMOVAL_AND_HOME);
 
 
     }
