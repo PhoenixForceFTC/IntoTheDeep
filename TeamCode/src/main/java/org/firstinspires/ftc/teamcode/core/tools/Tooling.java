@@ -18,7 +18,7 @@ public class Tooling implements Subsystem {
   //  final Intake intake;
     final ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     final MultiAxisClawAssembly multiAxisClawAssembly;
-    private Thread resetThread ;
+    private Thread resetThread;
     public static int extensionIncreasePerLoop = 17;
     public static int LOCKOUT = 100;
     public static int TARGET_SAMPLE_HEIGHT = 1000;

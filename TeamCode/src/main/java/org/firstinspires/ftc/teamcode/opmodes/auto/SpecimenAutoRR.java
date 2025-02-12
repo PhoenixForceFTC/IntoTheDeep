@@ -29,14 +29,14 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
     public static Position START = new Position(7.5,-67,90);
     public static Position START2 = new Position(7.5,-63,90);
     public static Position SCORE1 = new Position(0, -63,90);
-    public static Position SCORE2 = new Position(0, -39,90);
+    public static Position SCORE2 = new Position(0, -32,90);
     public static Position SCORE3 = new Position(0, -48,90);
     public static Position INT1 = new Position(38,-48,90);
     public static Position INT2 = new Position(38,-12,90);
     public static Position BLOCK1 = new Position(46,-12,90);
     public static Position BLOCK1DEPOSIT = new Position(46,-60,90);
-    public static Position BLOCK2 = new Position(57,-10,90);
-    public static Position BLOCK2DEPOSIT = new Position(57,-60,90);
+    public static Position BLOCK2 = new Position(51,-10,90);
+    public static Position BLOCK2DEPOSIT = new Position(51,-60,90);
     public static Position GRAB1 = new Position( 46,-36,270);
     public static Position GRAB2 = new Position(36,-40,270);
     public static Position SCORE4 = new Position(0, -34,270);
@@ -66,15 +66,15 @@ public class SpecimenAutoRR extends AutoOpMode3deadwheel {
         sleepTools2(700);
 
 
-        Arm.extensionPosition = 1100;
+        Arm.extensionPosition = 1010;
         sleepTools2(2000);
 
         goTo(SCORE2);
-        sleepTools2(2000);
-
-        Arm.customAngle = 67;
-        sleepTools2(700);
+        sleepTools2(100);
+        Arm.customAngle = 90;
         Arm.extensionPosition = 0;
+        sleepTools2(700);
+        Arm.customAngle = 67;
         sleepTools2(700);
         claw.off();
         sleepTools2(900);
